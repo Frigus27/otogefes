@@ -1,0 +1,25 @@
+{
+  "name": "hefei-otoge-fes",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "合肥「第一」音游祭赛事官网",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/markdown-satteri": "^0.4.10",
+    "@fontsource-variable/archivo": "^5.3.0",
+    "@fontsource-variable/noto-serif-sc": "^5.3.1",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "astro": "^7.4.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "typescript": "^5.9.3"
+  }
+}

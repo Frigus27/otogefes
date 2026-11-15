@@ -1,0 +1,319 @@
+---
+import type { ScheduleSlot } from '../data/schedule';
+
+interface Props {
+  slots: ScheduleSlot[];
+}
+
+const { slots } = Astro.props;
+
+const parseMain = (main: string) => {
+  const [code, ...rest] = main.split(' ');
+  return { code, title: rest.join(' ') };
+};
+
+const cards = slots.map((slot) => ({
+  ...slot,
+  ...parseMain(slot.main),
+  dual: slot.side !== '停止并行',
+}));
+
+const pad = (value: string) => value.padStart(2, '0');
+const rangeOf = (items: typeof cards) =>
+  items.length > 0
+    ? `时段 ${pad(items[0].index)}—${pad(items[items.length - 1].index)}`
+    : '';
+
+const groups = [
+  {
+    id: 'dual',
+    kicker: 'PHASE 01',
+    title: '双舞台并行',
+    note: '主、副舞台同时进行 · 每场三曲',
+    cards: cards.filter((card) => card.dual),
+    single: false,
+  },
+  {
+    id: 'single',
+    kicker: 'PHASE 02',
+    title: '单线决胜',
+    note: '副舞台停止并行 · 主舞台依次进行',
+    cards: cards.filter((card) => !card.dual),
+    single: true,
+  },
+].filter((group) => group.cards.length > 0);
+---
+
+<div class="runshow">
+  {
+    groups.map((group) => (
+      <section
+        class:list={['runshow__group', { 'runshow__group--single': group.single }]}
+        aria-labelledby={`slots-group-${group.id}`}
+      >
+        <header class="runshow__group-head">
+          <span class="runshow__group-kicker mono">{group.kicker}</span>
+          <h3 id={`slots-group-${group.id}`}>{group.title}</h3>
+          <span class="runshow__group-meta mono">
+            {rangeOf(group.cards)} · {group.note}
+          </span>
+        </header>
+
+        <ol class="runshow__grid" role="list" tabindex="0" aria-label={`${group.title}，${rangeOf(group.cards)}`}>
+          {group.cards.map((card) => (
+            <li class="runshow__card">
+              <div class="runshow__card-head">
+                <span class="runshow__index latin">{pad(card.index)}</span>
+              </div>
+
+              {card.label && <span class="runshow__card-label">{card.label}</span>}
+
+              <div class="runshow__stage">
+                <span class="runshow__stage-label mono">MAIN / 主舞台</span>
+                <span class="runshow__match">
+                  <span class="runshow__code latin">{card.code}</span>
+                  {card.title && <span class="runshow__title">{card.title}</span>}
+                </span>
+                {card.note && <span class="runshow__note mono">{card.note}</span>}
+              </div>
+
+              <div class="runshow__foot">
+                <span class="runshow__stage-label mono">SIDE / 副舞台</span>
+                {card.dual ? (
+                  <span class="runshow__code runshow__code--side latin">{card.side}</span>
+                ) : (
+                  <span class="runshow__off mono">停止并行</span>
+                )}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+    ))
+  }
+
+  <div class="runshow__arrow" aria-hidden="true">
+    <span class="runshow__arrow-line"></span>
+    <span class="runshow__arrow-head"></span>
+  </div>
+</div>
+
+<style>
+  .runshow {
+    margin-top: clamp(1.8rem, 3.5vw, 2.8rem);
+  }
+
+  .runshow__group + .runshow__group {
+    margin-top: clamp(2.4rem, 5vw, 4rem);
+  }
+
+  .runshow__group-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 1rem;
+    margin-bottom: clamp(1rem, 2vw, 1.4rem);
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--ink-line);
+  }
+
+  .runshow__group-kicker {
+    color: var(--flare);
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+  }
+
+  .runshow__group-head h3 {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 1.25rem + 0.8vw, 2.1rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+
+  .runshow__group-meta {
+    margin-left: auto;
+    color: var(--fg-muted);
+    font-size: 0.5rem;
+    letter-spacing: 0.04em;
+  }
+
+  .runshow__grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: clamp(0.6rem, 1.4vw, 1.1rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .runshow__group--single .runshow__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .runshow__grid:focus-visible {
+    outline: 1px solid var(--flare);
+    outline-offset: 6px;
+  }
+
+  .runshow__card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 1rem 1rem 1.05rem;
+    background: var(--paper);
+    color: var(--ink);
+    border-top: 3px solid var(--flare);
+  }
+
+  .runshow__card-head {
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid var(--paper-line);
+  }
+
+  .runshow__index {
+    display: inline-block;
+    color: var(--flare-text);
+    font-size: clamp(1.4rem, 1.2rem + 0.6vw, 1.9rem);
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 0.9;
+  }
+
+  .runshow__card-label {
+    display: block;
+    margin-bottom: 0.8rem;
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: clamp(0.82rem, 0.76rem + 0.18vw, 0.98rem);
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+    word-break: keep-all;
+    text-wrap: pretty;
+  }
+
+  .runshow__stage {
+    display: grid;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .runshow__stage-label {
+    color: var(--paper-muted);
+    font-size: 0.46rem;
+    letter-spacing: 0.05em;
+    line-height: 1.35;
+  }
+
+  .runshow__match {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.15rem 0.5rem;
+    min-width: 0;
+  }
+
+  .runshow__code {
+    font-family: var(--font-latin);
+    font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.55rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .runshow__title {
+    font-family: var(--font-display);
+    font-size: clamp(0.8rem, 0.74rem + 0.18vw, 0.95rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+  }
+
+  .runshow__note {
+    color: var(--paper-muted);
+    font-size: 0.46rem;
+    letter-spacing: 0.03em;
+    line-height: 1.5;
+  }
+
+  .runshow__foot {
+    display: grid;
+    gap: 0.25rem;
+    margin-top: auto;
+    padding-top: 0.8rem;
+    border-top: 1px dashed var(--paper-line);
+  }
+
+  .runshow__code--side {
+    font-size: clamp(1.05rem, 0.95rem + 0.3vw, 1.25rem);
+  }
+
+  .runshow__off {
+    display: inline-block;
+    justify-self: start;
+    padding: 0.18rem 0.36rem;
+    border: 1px dashed var(--paper-line);
+    color: var(--paper-muted);
+    font-size: 0.42rem;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+  }
+
+  .runshow__arrow {
+    display: flex;
+    align-items: center;
+    margin-top: clamp(2rem, 4.2vw, 3.4rem);
+  }
+
+  .runshow__arrow-line {
+    flex: 1;
+    height: clamp(0.4rem, 0.55vw, 0.6rem);
+    background: var(--flare);
+  }
+
+  .runshow__arrow-head {
+    width: 0;
+    height: 0;
+    border-top: clamp(1.1rem, 2.4vw, 1.9rem) solid transparent;
+    border-bottom: clamp(1.1rem, 2.4vw, 1.9rem) solid transparent;
+    border-left: clamp(1.4rem, 3.4vw, 2.6rem) solid var(--flare);
+  }
+
+  @media (max-width: 760px) {
+    .runshow__group-meta {
+      flex-basis: 100%;
+      margin-left: 0;
+    }
+
+    .runshow__grid,
+    .runshow__group--single .runshow__grid {
+      grid-auto-flow: column;
+      grid-template-columns: none;
+      grid-auto-columns: clamp(9rem, 40vw, 12rem);
+      overflow-x: auto;
+      padding-bottom: 0.55rem;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: thin;
+      scrollbar-color: var(--flare) var(--ink-line);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .runshow__card {
+      scroll-snap-align: start;
+    }
+
+    .runshow__grid::-webkit-scrollbar {
+      height: 3px;
+    }
+
+    .runshow__grid::-webkit-scrollbar-track {
+      background: var(--ink-line);
+    }
+
+    .runshow__grid::-webkit-scrollbar-thumb {
+      background: var(--flare);
+    }
+  }
+</style>

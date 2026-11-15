@@ -1,0 +1,208 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { formatDate, padNumber } from '../lib/format';
+import { withBase } from '../lib/url';
+
+interface Props {
+  post: CollectionEntry<'news'>;
+  index?: number;
+  compact?: boolean;
+}
+
+const { post, index, compact = false } = Astro.props;
+const href = withBase(`/news/${post.id}`);
+---
+
+<article class:list={['news-row', { 'news-row--compact': compact }]}>
+  {
+    typeof index === 'number' && (
+      <span class="news-row__index mono" aria-hidden="true">
+        {padNumber(index + 1)}
+      </span>
+    )
+  }
+
+  <div class="news-row__meta">
+    <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+    <span class="news-row__category">{post.data.category}</span>
+  </div>
+
+  <div class="news-row__content">
+    <div class="news-row__labels">
+      {post.data.pinned && <span class="news-row__pin">置顶</span>}
+    </div>
+    <h3>
+      <a href={href}>{post.data.title}</a>
+    </h3>
+    <p>{post.data.description}</p>
+  </div>
+
+  <span class="news-row__arrow" aria-hidden="true">↗</span>
+</article>
+
+<style>
+  .news-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.5rem 8.5rem minmax(0, 1fr) 2rem;
+    gap: 0 clamp(1rem, 2.5vw, 2.5rem);
+    align-items: start;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border);
+    transition: background-color var(--dur-fast) var(--ease-snap);
+  }
+
+  .news-row:first-child {
+    border-top: 1px solid var(--border);
+  }
+
+  .news-row:hover {
+    background: color-mix(in srgb, var(--paper-raised) 70%, transparent);
+  }
+
+  .news-row__index {
+    padding-top: 0.15rem;
+    color: var(--fg-muted);
+    font-size: 0.55rem;
+  }
+
+  .news-row__meta {
+    display: grid;
+    gap: 0.35rem;
+    padding-top: 0.05rem;
+    color: var(--fg-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+  }
+
+  .news-row__category {
+    width: max-content;
+    padding: 0.15rem 0.4rem;
+    border: 1px solid var(--border);
+    font-size: 0.55rem;
+  }
+
+  .news-row__labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .news-row__pin {
+    display: inline-flex;
+    padding: 0.1rem 0.35rem;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.06em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+
+  .news-row h3 {
+    max-width: 38ch;
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 1.05rem + 0.55vw, 1.55rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+
+  .news-row h3 a {
+    text-decoration: none;
+  }
+
+  .news-row h3 a:hover {
+    background: var(--cream);
+    color: var(--ink);
+    outline: 0.18em solid var(--cream);
+  }
+
+  .news-row__content p {
+    max-width: 56ch;
+    margin-top: 0.45rem;
+    color: var(--fg-muted);
+    font-size: var(--text-sm);
+    line-height: 1.75;
+  }
+
+  .news-row__arrow {
+    justify-self: end;
+    padding-top: 0.1rem;
+    color: var(--fg-muted);
+    font-size: 1.25rem;
+    transition:
+      color var(--dur-fast) var(--ease-snap),
+      transform var(--dur-fast) var(--ease-snap);
+  }
+
+  .news-row:hover .news-row__arrow {
+    color: var(--ink);
+    transform: translate(0.15rem, -0.15rem);
+  }
+
+  .news-row--compact {
+    grid-template-columns: 7rem minmax(0, 1fr) 1.5rem;
+    padding-block: 1.15rem;
+  }
+
+  .news-row--compact .news-row__index {
+    display: none;
+  }
+
+  .news-row--compact .news-row__content p {
+    display: none;
+  }
+
+  .news-row--compact h3 {
+    font-size: clamp(1.1rem, 1rem + 0.35vw, 1.3rem);
+  }
+
+  @media (max-width: 760px) {
+    .news-row {
+      grid-template-columns: 1fr auto;
+      gap: 0.5rem 1rem;
+      padding-block: 1.35rem;
+    }
+
+    .news-row__index {
+      display: none;
+    }
+
+    .news-row__meta {
+      display: flex;
+      flex-wrap: wrap;
+      grid-column: 1;
+      align-items: center;
+      gap: 0.5rem;
+      padding-top: 0;
+    }
+
+    .news-row__content {
+      grid-column: 1;
+    }
+
+    .news-row__arrow {
+      grid-row: 1 / span 2;
+      grid-column: 2;
+      align-self: center;
+    }
+
+    .news-row h3 {
+      font-size: 1.2rem;
+    }
+
+    .news-row__content p {
+      display: none;
+    }
+
+    .news-row--compact {
+      grid-template-columns: 1fr auto;
+    }
+  }
+</style>

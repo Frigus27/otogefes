@@ -1,0 +1,591 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatDateLong, readingTime } from '../../lib/format';
+import { withBase } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('news');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<'news'>;
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+
+const allPosts = (await getCollection('news')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+const currentIndex = allPosts.findIndex((entry) => entry.id === post.id);
+const newerPost = currentIndex > 0 ? allPosts[currentIndex - 1] : undefined;
+const olderPost = currentIndex >= 0 ? allPosts[currentIndex + 1] : undefined;
+const reading = readingTime(post.body ?? '');
+const hasLongTitle = post.data.title.length > 16;
+---
+
+<BaseLayout title={post.data.title} description={post.data.description} type="article">
+  <article class="news-detail">
+    <header class="article-hero" aria-labelledby="article-title">
+      <div class="container article-hero__inner">
+        <nav class="article-breadcrumb mono" aria-label="面包屑">
+          <a href={withBase('/')}>首页</a>
+          <span aria-hidden="true">/</span>
+          <a href={withBase('/news')}>公告</a>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page">{post.data.category}</span>
+        </nav>
+
+        <div class="article-hero__meta">
+          <span class="tag tag--signal">{post.data.category}</span>
+          {post.data.pinned && <span class="tag">置顶公告</span>}
+          <time datetime={post.data.pubDate.toISOString()}>{formatDateLong(post.data.pubDate)}</time>
+          <span>{reading}</span>
+        </div>
+
+        <h1 id="article-title" class:list={{ 'is-long': hasLongTitle }}>{post.data.title}</h1>
+        <p class="article-hero__lede">{post.data.description}</p>
+
+        <div class="article-hero__foot">
+          <span class="mono">BY {post.data.author}</span>
+          {
+            post.data.updatedDate && (
+              <time class="mono" datetime={post.data.updatedDate.toISOString()}>
+                UPDATED {formatDateLong(post.data.updatedDate)}
+              </time>
+            )
+          }
+          <span class="mono">NEWS / {post.id.toUpperCase()}</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="article-body section">
+      <div class="container article-layout">
+        <aside class="article-aside">
+          <div class="article-aside__sticky">
+            <a class="article-back link-arrow" href={withBase('/news')}>
+              全部公告
+              <span class="link-arrow__icon" aria-hidden="true">←</span>
+            </a>
+
+            <div class="article-info">
+              <p class="eyebrow">ARTICLE INFO</p>
+              <dl>
+                <div>
+                  <dt>分类</dt>
+                  <dd>{post.data.category}</dd>
+                </div>
+                <div>
+                  <dt>发布</dt>
+                  <dd>{formatDateLong(post.data.pubDate)}</dd>
+                </div>
+                <div>
+                  <dt>作者</dt>
+                  <dd>{post.data.author}</dd>
+                </div>
+                <div>
+                  <dt>状态</dt>
+                  <dd>已发布</dd>
+                </div>
+              </dl>
+            </div>
+
+            {
+              toc.length > 0 && (
+                <nav class="article-toc" aria-label="文章目录">
+                  <p class="eyebrow">ON THIS PAGE</p>
+                  <ol>
+                    {toc.map((heading) => (
+                      <li class:list={[`article-toc--h${heading.depth}`]}>
+                        <a href={`#${heading.slug}`}>{heading.text}</a>
+                      </li>
+                    ))}
+                  </ol>
+                </nav>
+              )
+            }
+
+            <div class="article-aside__links">
+              <a href={withBase('/ranking')}>查看预选榜单 <span aria-hidden="true">↗</span></a>
+              <a href={withBase('/rules')}>阅读比赛章程 <span aria-hidden="true">↗</span></a>
+            </div>
+          </div>
+        </aside>
+
+        <div class="article-main">
+          {
+            toc.length > 0 && (
+              <details class="article-mobile-toc">
+                <summary>展开文章目录 <span aria-hidden="true">＋</span></summary>
+                <nav aria-label="移动端文章目录">
+                  <ol>
+                    {toc.map((heading) => (
+                      <li class:list={[`article-toc--h${heading.depth}`]}>
+                        <a href={`#${heading.slug}`}>{heading.text}</a>
+                      </li>
+                    ))}
+                  </ol>
+                </nav>
+              </details>
+            )
+          }
+
+          <div class="prose article-prose">
+            <Content />
+          </div>
+
+          <footer class="article-footer">
+            <div class="article-footer__top">
+              <span class="mono">END OF ARTICLE / {post.id.toUpperCase()}</span>
+              <a class="link-arrow" href={withBase('/news')}>
+                返回公告列表
+                <span class="link-arrow__icon" aria-hidden="true">→</span>
+              </a>
+            </div>
+
+            <nav class="article-pager" aria-label="公告翻页">
+              {
+                newerPost ? (
+                  <a class="article-pager__item" href={withBase(`/news/${newerPost.id}`)}>
+                    <span class="mono">NEWER / 更新一篇</span>
+                    <strong>{newerPost.data.title}</strong>
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                ) : (
+                  <span class="article-pager__item is-empty">
+                    <span class="mono">NEWER / 更新一篇</span>
+                    <strong>已经是最新公告</strong>
+                  </span>
+                )
+              }
+              {
+                olderPost ? (
+                  <a class="article-pager__item article-pager__item--next" href={withBase(`/news/${olderPost.id}`)}>
+                    <span class="mono">OLDER / 更早一篇</span>
+                    <strong>{olderPost.data.title}</strong>
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                ) : (
+                  <span class="article-pager__item article-pager__item--next is-empty">
+                    <span class="mono">OLDER / 更早一篇</span>
+                    <strong>已经是最早公告</strong>
+                  </span>
+                )
+              }
+            </nav>
+          </footer>
+        </div>
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .article-hero {
+    --fg: var(--paper);
+    --fg-muted: var(--ink-muted);
+    --border: var(--ink-line);
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(2.2rem, 5vw, 4.5rem) clamp(3rem, 6vw, 5.5rem);
+    border-bottom: 1px solid var(--ink-line);
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .article-hero::before {
+    position: absolute;
+    top: 0;
+    left: var(--gutter);
+    width: 4.5rem;
+    height: 3px;
+    background: var(--violet);
+    content: "";
+  }
+
+  .article-hero__inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .article-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 1.2rem;
+    border-bottom: 1px solid var(--ink-line);
+    color: var(--ink-muted);
+    font-size: 0.55rem;
+  }
+
+  .article-breadcrumb a {
+    color: var(--paper);
+    text-decoration: none;
+  }
+
+  .article-breadcrumb a:hover {
+    color: var(--signal);
+  }
+
+  .article-breadcrumb [aria-current="page"] {
+    color: var(--violet);
+  }
+
+  .article-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem 1rem;
+    margin-top: clamp(2rem, 4vw, 3rem);
+    color: var(--ink-muted);
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.03em;
+  }
+
+  .article-hero h1 {
+    max-width: 18ch;
+    text-wrap: wrap;
+    margin-top: 1.4rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 1.35rem + 3.7vw, 5.4rem);
+    font-weight: 900;
+    letter-spacing: -0.06em;
+    line-height: 1.04;
+  }
+
+  .article-hero h1.is-long {
+    max-width: none;
+    font-size: clamp(2rem, 1rem + 2.6vw, 3.5rem);
+    letter-spacing: -0.045em;
+    line-height: 1.15;
+  }
+
+  .article-hero__lede {
+    max-width: 48rem;
+    margin-top: 1.5rem;
+    color: color-mix(in srgb, var(--paper) 72%, transparent);
+    font-size: clamp(0.95rem, 0.9rem + 0.25vw, 1.1rem);
+    line-height: 1.85;
+  }
+
+  .article-hero__foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 2rem;
+    margin-top: clamp(2rem, 4vw, 3.5rem);
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--ink-line);
+    color: var(--ink-muted);
+  }
+
+  .article-hero__foot .mono {
+    font-size: 0.5rem;
+  }
+
+  .article-hero::after {
+    position: absolute;
+    right: var(--gutter);
+    bottom: 0.15em;
+    color: rgba(243, 240, 230, 0.06);
+    content: "NEWS / HF-OTG-01";
+    font-family: var(--font-mono);
+    font-size: clamp(1rem, 2.5vw, 1.8rem);
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    line-height: 1.45;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .article-layout {
+    display: grid;
+    grid-template-columns: minmax(11rem, 0.26fr) minmax(0, 1fr);
+    gap: clamp(2.5rem, 7vw, 8rem);
+    align-items: start;
+  }
+
+  .article-aside__sticky {
+    position: sticky;
+    top: calc(var(--header-height) + 2rem);
+  }
+
+  .article-back {
+    font-size: 0.56rem;
+  }
+
+  .article-info {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--paper-line);
+  }
+
+  .article-info .eyebrow,
+  .article-toc .eyebrow {
+    font-size: 0.55rem;
+  }
+
+  .article-info dl {
+    display: grid;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+  }
+
+  .article-info dl > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--paper-muted);
+    font-size: 0.65rem;
+  }
+
+  .article-info dd {
+    margin: 0;
+    color: var(--ink);
+    text-align: right;
+  }
+
+  .article-toc {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--paper-line);
+  }
+
+  .article-toc ol {
+    display: grid;
+    gap: 0.1rem;
+    margin-top: 0.8rem;
+    list-style: none;
+  }
+
+  .article-toc a {
+    display: block;
+    padding: 0.32rem 0 0.32rem 0.75rem;
+    border-left: 1px solid var(--paper-line);
+    color: var(--paper-muted);
+    font-size: 0.72rem;
+    line-height: 1.5;
+    text-decoration: none;
+  }
+
+  .article-toc a:hover {
+    border-left-color: var(--violet);
+    background: var(--paper-raised);
+    color: var(--ink);
+  }
+
+  .article-toc--h3 a {
+    padding-left: 1.5rem;
+    font-size: 0.68rem;
+  }
+
+  .article-aside__links {
+    display: grid;
+    margin-top: 2rem;
+    border-top: 1px solid var(--paper-line);
+  }
+
+  .article-aside__links a {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--paper-line);
+    font-size: 0.7rem;
+    text-decoration: none;
+  }
+
+  .article-aside__links a:hover {
+    background: var(--cream);
+  }
+
+  .article-main {
+    min-width: 0;
+  }
+
+  .article-prose {
+    max-width: 68ch;
+  }
+
+  .article-footer {
+    max-width: 68ch;
+    margin-top: 4rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--ink);
+  }
+
+  .article-footer__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--paper-muted);
+  }
+
+  .article-footer__top .mono {
+    font-size: 0.5rem;
+  }
+
+  .article-pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--paper-line);
+    border-bottom: 1px solid var(--paper-line);
+  }
+
+  .article-pager__item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.4rem 0.8rem;
+    padding: 1rem 1rem 1rem 0;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .article-pager__item--next {
+    padding-right: 0;
+    padding-left: 1rem;
+    border-left: 1px solid var(--paper-line);
+    text-align: right;
+  }
+
+  .article-pager__item .mono {
+    grid-column: 1;
+    color: var(--paper-muted);
+    font-size: 0.48rem;
+  }
+
+  .article-pager__item strong {
+    grid-column: 1;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.4;
+  }
+
+  .article-pager__item > span:last-child:not(.mono) {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    color: var(--paper-muted);
+    font-size: 1.1rem;
+  }
+
+  .article-pager__item:hover {
+    background: var(--paper-raised);
+  }
+
+  .article-pager__item:hover strong {
+    text-decoration: underline;
+    text-decoration-color: var(--flare);
+  }
+
+  .article-pager__item.is-empty {
+    color: var(--paper-muted);
+  }
+
+  .article-pager__item.is-empty strong {
+    font-weight: 400;
+  }
+
+  .article-mobile-toc {
+    display: none;
+    margin-bottom: 2rem;
+    border: 1px solid var(--ink);
+  }
+
+  .article-mobile-toc summary {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.8rem 1rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .article-mobile-toc summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .article-mobile-toc[open] summary {
+    border-bottom: 1px solid var(--ink);
+    background: var(--cream);
+  }
+
+  .article-mobile-toc nav {
+    padding: 0.7rem 1rem 1rem;
+  }
+
+  .article-mobile-toc ol {
+    display: grid;
+    gap: 0.55rem;
+    padding-left: 1rem;
+    font-size: 0.8rem;
+  }
+
+  .article-mobile-toc a {
+    text-decoration: none;
+    border-bottom: 1px solid var(--paper-line);
+  }
+
+  .article-mobile-toc a:hover {
+    background: var(--cream);
+  }
+
+  @media (max-width: 960px) {
+    .article-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .article-aside {
+      display: none;
+    }
+
+    .article-mobile-toc {
+      display: block;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .article-hero__meta {
+      gap: 0.5rem;
+    }
+
+    .article-hero__meta time {
+      margin-top: 0.2rem;
+    }
+
+    .article-hero h1 {
+      font-size: clamp(2.2rem, 11vw, 3.6rem);
+    }
+
+    .article-hero__foot {
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .article-pager {
+      grid-template-columns: 1fr;
+    }
+
+    .article-pager__item--next {
+      padding-left: 0;
+      border-top: 1px solid var(--paper-line);
+      border-left: 0;
+      text-align: left;
+    }
+  }
+</style>

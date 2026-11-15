@@ -1,0 +1,12 @@
+---
+import type { StatusTone } from '../config/event';
+
+interface Props {
+  label: string;
+  tone?: StatusTone;
+}
+
+const { label, tone = 'pending' } = Astro.props;
+---
+
+<span class:list={['status', `status--${tone}`]}>{label}</span>

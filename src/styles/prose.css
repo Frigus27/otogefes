@@ -1,0 +1,256 @@
+/* =========================================================
+   Long-form content
+   ========================================================= */
+
+[id] {
+  scroll-margin-top: calc(var(--header-height) + 2rem);
+}
+
+.prose {
+  width: 100%;
+  max-width: var(--reading-max);
+  color: var(--fg);
+  font-size: clamp(1rem, 0.96rem + 0.16vw, 1.1rem);
+  line-height: 1.95;
+}
+
+.prose > :first-child {
+  margin-top: 0;
+}
+
+.prose p,
+.prose ul,
+.prose ol,
+.prose blockquote,
+.prose pre,
+.prose table,
+.prose figure {
+  margin-block: 0 1.35em;
+}
+
+.prose h2 {
+  margin-block: 3.7rem 1.15rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 1.4rem + 1.35vw, 2.65rem);
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+.prose h2:first-child {
+  margin-top: 0;
+}
+
+.prose h3 {
+  margin-block: 2.5rem 0.8rem;
+  font-family: var(--font-sans);
+  font-size: clamp(1.18rem, 1.08rem + 0.42vw, 1.4rem);
+  font-weight: 750;
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+}
+
+.prose h4 {
+  margin-block: 2rem 0.6rem;
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.prose p {
+  color: color-mix(in srgb, var(--fg) 88%, transparent);
+}
+
+.prose strong {
+  color: var(--fg);
+  font-weight: 700;
+}
+
+.prose em {
+  font-family: var(--font-display);
+  font-size: 1.08em;
+  font-style: italic;
+}
+
+.prose a {
+  color: var(--fg);
+  text-decoration-color: var(--flare);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition: background-color var(--dur-fast) var(--ease-snap);
+}
+
+.prose a:hover {
+  background: var(--cream);
+  color: var(--ink);
+  text-decoration-color: var(--ink);
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.35rem;
+}
+
+.prose li {
+  margin-block: 0.45em;
+  padding-left: 0.3rem;
+}
+
+.prose li::marker {
+  color: var(--flare-text);
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  font-weight: 600;
+}
+
+.prose li > ul,
+.prose li > ol {
+  margin-block: 0.45em;
+}
+
+.prose blockquote {
+  position: relative;
+  padding: 1.25rem 1.5rem;
+  border-left: 3px solid var(--flare);
+  background: var(--paper-deep);
+  color: var(--ink);
+}
+
+.prose blockquote::before {
+  position: absolute;
+  top: -0.15em;
+  right: 0.4rem;
+  color: var(--ink);
+  content: "“";
+  font-family: var(--font-display);
+  font-size: 4.5rem;
+  line-height: 1;
+  opacity: 0.12;
+}
+
+.prose blockquote p {
+  margin-block: 0.4em;
+  color: var(--ink);
+  font-size: 0.95em;
+}
+
+.prose blockquote p:first-child {
+  margin-top: 0;
+}
+
+.prose blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.prose code {
+  padding: 0.12em 0.38em;
+  background: var(--paper-deep);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.84em;
+}
+
+.prose pre {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 1rem 1.2rem;
+  background: var(--cream-deep);
+  color: var(--ink);
+  font-size: var(--text-sm);
+  line-height: 1.65;
+}
+
+.prose pre code {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.prose hr {
+  height: 1px;
+  margin-block: 3rem;
+  border: 0;
+  background: var(--border);
+}
+
+.prose table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.prose th,
+.prose td {
+  padding: 0.75rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.prose th {
+  background: var(--paper-deep);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.prose img {
+  width: 100%;
+  border: 1px solid var(--border);
+}
+
+.prose figure {
+  margin-inline: 0;
+}
+
+.prose figure img {
+  display: block;
+}
+
+.prose .charter-figure__link {
+  display: block;
+}
+
+.prose .charter-figure__link:hover {
+  background: transparent;
+}
+
+.prose .charter-figure__link:hover img {
+  border-color: var(--fg);
+  opacity: 0.92;
+}
+
+.prose figcaption {
+  margin-top: 0.7rem;
+  color: color-mix(in srgb, var(--fg) 62%, transparent);
+  font-size: var(--text-xs);
+  line-height: 1.7;
+}
+
+.prose figcaption a {
+  margin-left: 0.5rem;
+  color: var(--fg);
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .prose {
+    line-height: 1.88;
+  }
+
+  .prose h2 {
+    margin-top: 3rem;
+  }
+
+  .prose blockquote {
+    margin-inline: 0;
+    padding: 1rem 1.1rem;
+  }
+}

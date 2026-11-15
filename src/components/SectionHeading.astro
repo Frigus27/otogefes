@@ -1,0 +1,113 @@
+---
+interface Props {
+  index: string;
+  eyebrow: string;
+  title: string;
+  intro?: string;
+  id?: string;
+}
+
+const { index, eyebrow, title, intro, id } = Astro.props;
+---
+
+<header class="section-heading">
+  <div class="section-heading__rail">
+    <span class="section-heading__index mono">{index}</span>
+    <p class="section-heading__eyebrow eyebrow">{eyebrow}</p>
+  </div>
+
+  <div class="section-heading__body">
+    <h2 id={id}>{title}</h2>
+    {intro && <p class="section-heading__intro">{intro}</p>}
+  </div>
+
+  <div class="section-heading__aside">
+    <slot />
+  </div>
+</header>
+
+<style>
+  .section-heading {
+    display: grid;
+    grid-template-columns: 8.5rem minmax(0, 1fr) minmax(10rem, 0.34fr);
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    align-items: start;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .section-heading__rail {
+    display: grid;
+    gap: 0.65rem;
+    padding-top: 0.3rem;
+  }
+
+  .section-heading__index {
+    color: var(--flare-text);
+    font-size: 0.66rem;
+    font-weight: 500;
+  }
+
+  .section-heading__eyebrow {
+    color: var(--fg-muted);
+    font-size: 0.58rem;
+  }
+
+  .section-heading__eyebrow::before {
+    display: none;
+  }
+
+  .section-heading__body h2 {
+    max-width: 18ch;
+    font-family: var(--font-display);
+    font-size: clamp(2.1rem, 1.4rem + 2.7vw, 4.3rem);
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    line-height: 1.05;
+  }
+
+  .section-heading__intro {
+    max-width: 38rem;
+    margin-top: 1.2rem;
+    color: var(--fg-muted);
+    font-size: var(--text-sm);
+    line-height: 1.85;
+  }
+
+  .section-heading__aside {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 0.35rem;
+  }
+
+  @media (max-width: 900px) {
+    .section-heading {
+      grid-template-columns: 5rem minmax(0, 1fr);
+    }
+
+    .section-heading__aside {
+      grid-column: 2;
+      justify-content: flex-start;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .section-heading {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .section-heading__rail {
+      grid-template-columns: auto 1fr;
+      align-items: center;
+    }
+
+    .section-heading__body h2 {
+      max-width: none;
+    }
+
+    .section-heading__aside {
+      grid-column: 1;
+    }
+  }
+</style>

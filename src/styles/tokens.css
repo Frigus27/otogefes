@@ -1,0 +1,109 @@
+/* =========================================================
+   Design tokens
+   合肥「第一」音游祭 · visual system v0.1
+   ========================================================= */
+
+:root {
+  color-scheme: light;
+
+  /* Core palette: ink, warm paper, signal lime, flare orange, pale cyan */
+  --ink: #171811;
+  --ink-raised: #202118;
+  --ink-soft: #2b2c22;
+  --ink-line: #3a3b30;
+
+  --paper: #f3f0e6;
+  --paper-raised: #faf8ef;
+  --paper-deep: #e7e2d4;
+  --paper-line: #d2ccbc;
+
+  /* Warm cream surfaces used on light sections in place of lime/black blocks */
+  --cream-soft: #fcf6e9;
+  --cream: #f7ecd4;
+  --cream-deep: #eadcbe;
+  --apricot: #f3dcc3;
+
+  --signal: #dcff4f;
+  --signal-deep: #c9ef2f;
+  --flare: #ff5f3b;
+  --sky: #9dd9ee;
+  --violet: #b9a5ff;
+
+  --ink-muted: #a7a998;
+  --paper-muted: #626456;
+  --flare-text: #b43210;
+  --sky-text: #2f6478;
+  --signal-text: #3e5b00;
+  --violet-text: #5f4a9c;
+
+  /* Semantic */
+  --fg: var(--ink);
+  --bg: var(--paper);
+  --fg-muted: var(--paper-muted);
+  --border: var(--paper-line);
+  --focus: var(--flare);
+
+  /* Type */
+  --font-sans:
+    "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC",
+    "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  --font-display:
+    "Noto Serif SC Variable", "Source Han Serif SC", "Noto Serif CJK SC",
+    "Songti SC", "STSong", "SimSun", serif;
+  --font-latin:
+    "Archivo Variable", "Archivo", "Arial Black", "Helvetica Neue", Arial,
+    sans-serif;
+  --font-mono:
+    "IBM Plex Mono", "SFMono-Regular", "Cascadia Mono", "Roboto Mono", Consolas,
+    monospace;
+
+  /* Fluid type scale */
+  --text-2xs: 0.6875rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --text-lg: clamp(1.125rem, 1.04rem + 0.42vw, 1.4rem);
+  --text-xl: clamp(1.35rem, 1.16rem + 0.9vw, 1.9rem);
+  --text-2xl: clamp(1.8rem, 1.35rem + 2.2vw, 3.25rem);
+  --text-3xl: clamp(2.5rem, 1.5rem + 4.8vw, 5.6rem);
+  --text-4xl: clamp(3.4rem, 1.4rem + 9vw, 9rem);
+  --text-hero: clamp(4.1rem, 1.2rem + 13.2vw, 13.5rem);
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --space-9: 6rem;
+  --space-10: 8rem;
+  --space-11: 11rem;
+
+  /* Layout */
+  --page-max: 1560px;
+  --content-max: 1280px;
+  --reading-max: 70ch;
+  --gutter: clamp(1.35rem, 3.6vw, 4.5rem);
+  --header-height: 4.5rem;
+  --border-width: 1px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snap: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-fast: 160ms;
+  --dur-base: 320ms;
+  --dur-slow: 720ms;
+
+  /* The site intentionally avoids soft cards and large rounded corners. */
+  --radius-pill: 999px;
+  --radius-xs: 2px;
+}
+
+@media (max-width: 860px) {
+  :root {
+    --header-height: 4rem;
+  }
+}

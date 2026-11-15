@@ -1,0 +1,28 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# environment
+.env
+.env.*
+!.env.example
+
+# 未经授权的官方曲绘，不随源码公开；本地保留即可在开启横幅时构建
+src/assets/banners/banner-ranking-songs.png
+
+# 本地误生成的临时截图
+/none
+
+# editor / OS
+.DS_Store
+.idea/
+.vscode/

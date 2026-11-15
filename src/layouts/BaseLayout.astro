@@ -1,0 +1,130 @@
+---
+import '@fontsource-variable/archivo';
+import '@fontsource-variable/noto-serif-sc';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '@fontsource/ibm-plex-mono/600.css';
+import '../styles/tokens.css';
+import '../styles/global.css';
+import '../styles/prose.css';
+
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { event } from '../config/event';
+import { withBase } from '../lib/url';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = event.seo.description,
+  image = event.seo.ogImage,
+  type = 'website',
+  noindex = false,
+} = Astro.props;
+
+const pageTitle = title ? `${title}｜${event.name}` : event.seo.title;
+
+const siteOrigin = Astro.site ?? new URL('https://frigussum.com');
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+const baseUrl = `${basePath}/`;
+const rawPath = Astro.url.pathname;
+const pagePath =
+  basePath && rawPath !== basePath && !rawPath.startsWith(`${basePath}/`)
+    ? `${basePath}${rawPath}`
+    : rawPath;
+const canonical = new URL(pagePath, siteOrigin);
+const ogImage = new URL(withBase(image), siteOrigin);
+const siteRoot = new URL(baseUrl, siteOrigin);
+
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: event.name,
+  alternateName: event.englishName,
+  url: siteRoot.href,
+  description: event.seo.description,
+  inLanguage: 'zh-CN',
+};
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#171811" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical.href} />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={event.name} />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:image" content={ogImage.href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${event.name} · ${event.englishName}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage.href} />
+
+    <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+    <link rel="apple-touch-icon" href={withBase('/apple-touch-icon.png')} />
+    <link rel="manifest" href={withBase('/site.webmanifest')} />
+
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+    <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+  </head>
+
+  <body id="top">
+    <a class="skip-link" href="#main">跳到主要内容</a>
+    <SiteHeader />
+    <main id="main" class="page-main">
+      <slot />
+    </main>
+    <SiteFooter />
+
+    <script is:inline>
+      (() => {
+        const elements = Array.from(document.querySelectorAll('[data-reveal]'));
+        if (!elements.length) return;
+
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reducedMotion || !('IntersectionObserver' in window)) {
+          elements.forEach((element) => element.classList.add('is-visible'));
+          return;
+        }
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
+        );
+
+        elements.forEach((element) => observer.observe(element));
+      })();
+    </script>
+  </body>
+</html>

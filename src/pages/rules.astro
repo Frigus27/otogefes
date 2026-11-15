@@ -1,0 +1,806 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import { formatDateLong } from '../lib/format';
+import { withBase } from '../lib/url';
+
+const rules = await getCollection('rules');
+const rule = rules.find((entry) => entry.id === 'main') ?? rules[0];
+
+if (!rule) {
+  throw new Error('未找到规则内容。请在 src/content/rules/ 中添加 main.md。');
+}
+
+const { Content, headings } = await render(rule);
+const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+const statusTone = rule.data.status === 'confirmed' ? 'active' : 'pending';
+---
+
+<BaseLayout
+  title={rule.data.title}
+  description={rule.data.description}
+  type="article"
+>
+  <PageHero
+    index="03"
+    kicker="CHARTER / REGULATIONS"
+    title={rule.data.title}
+    englishTitle="CHARTER & REGULATIONS"
+    description={rule.data.description}
+    status={{ label: rule.data.statusLabel, tone: statusTone }}
+    accent="signal"
+  >
+    <dl class="rules-hero-meta">
+      <div>
+        <dt class="mono">VERSION</dt>
+        <dd>{rule.data.version}</dd>
+      </div>
+      <div>
+        <dt class="mono">UPDATED</dt>
+        <dd><time datetime={rule.data.updatedAt.toISOString()}>{formatDateLong(rule.data.updatedAt)}</time></dd>
+      </div>
+      <div>
+        <dt class="mono">STATUS</dt>
+        <dd>{rule.data.statusLabel}</dd>
+      </div>
+    </dl>
+  </PageHero>
+
+  <div class="rules-status rules-status--official">
+    <div class="container rules-status__inner">
+      <span class="rules-status__badge mono">OFFICIAL / 正式稿</span>
+      <p>
+        本章程为合肥「第一」音游祭 Arcaea 项目<strong>正式比赛章程（{rule.data.version}）</strong>。赛事日期、场地及现场安排如有调整，以筹备组统一公告为准。
+      </p>
+      <a class="mono" href={withBase('/news')}>查看赛事公告 <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+
+  <section class="rules-main section" aria-labelledby="rules-content-title">
+    <div class="container rules-layout">
+      <aside class="rules-sidebar" aria-label="章程目录">
+        <div class="toc-dock" data-toc-dock>
+          <div class="toc-dock__panel" id="rule-toc-panel">
+            <div class="toc-dock__head">
+              <p class="mono">CONTENTS / 目录</p>
+              <span class="mono toc-dock__count">{toc.length} SECTIONS</span>
+            </div>
+
+            <div class="toc-dock__scroll">
+              <nav class="toc" aria-label="规则章节导航">
+                <ol>
+                  {
+                    toc.map((heading) => (
+                      <li class:list={['toc__item', `toc__item--h${heading.depth}`]}>
+                        <a href={`#${heading.slug}`}>{heading.text}</a>
+                      </li>
+                    ))
+                  }
+                </ol>
+              </nav>
+
+              <div class="rule-doc">
+                <p class="mono">DOCUMENT INFO</p>
+                <dl>
+                  <div>
+                    <dt>版本</dt>
+                    <dd>{rule.data.version}</dd>
+                  </div>
+                  <div>
+                    <dt>更新</dt>
+                    <dd>{formatDateLong(rule.data.updatedAt)}</dd>
+                  </div>
+                  <div>
+                    <dt>状态</dt>
+                    <dd>{rule.data.statusLabel}</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+
+            <div class="toc-dock__foot">
+              <a class="rules-sidebar__back link-arrow" href={withBase('/ranking')}>
+                返回预选榜单
+                <span class="link-arrow__icon" aria-hidden="true">→</span>
+              </a>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="toc-dock__spine"
+            data-toc-toggle
+            aria-expanded="true"
+            aria-controls="rule-toc-panel"
+            aria-label="收起目录"
+          >
+            <span class="toc-dock__icon" aria-hidden="true">
+              <span class="toc-dock__icon-minus">−</span>
+              <span class="toc-dock__icon-plus">＋</span>
+            </span>
+            <span class="toc-dock__label" aria-hidden="true">
+              <span class="mono">CONTENTS</span>
+              <span>目录</span>
+            </span>
+            <span class="toc-dock__spine-count mono" aria-hidden="true">{toc.length}</span>
+          </button>
+        </div>
+      </aside>
+
+      <article class="rules-article" aria-labelledby="rules-content-title">
+        <header class="rules-article__head">
+          <p class="eyebrow">DOCUMENT / CHARTER</p>
+          <h2 id="rules-content-title">章程正文</h2>
+          <div class="rules-article__meta">
+            <span class="mono">VERSION {rule.data.version}</span>
+            <span class="mono">UPDATED {formatDateLong(rule.data.updatedAt)}</span>
+            <span class="tag">正式稿</span>
+          </div>
+        </header>
+
+        <details class="mobile-toc">
+          <summary>展开规则目录 <span aria-hidden="true">＋</span></summary>
+          <nav aria-label="移动端规则章节导航">
+            <ol>
+              {
+                toc.map((heading) => (
+                  <li class:list={[`toc__item--h${heading.depth}`]}>
+                    <a href={`#${heading.slug}`}>{heading.text}</a>
+                  </li>
+                ))
+              }
+            </ol>
+          </nav>
+        </details>
+
+        <div class="rules-official-note" role="note">
+          <span class="mono">STATUS / 正式稿</span>
+          <p>
+            本章程为 {rule.data.version} 正式稿。章程、曲池和重要补充规则须通过统一渠道公布，筹备组私下讨论不直接改变已发布规则。
+          </p>
+        </div>
+
+        <div class="prose rules-prose">
+          <Content />
+        </div>
+
+        <footer class="rules-article__foot">
+          <p class="mono">END OF DOCUMENT / {rule.data.version}</p>
+          <p>
+            本章程为正式稿。若后续发布修订版本，以最新版本为准；规则更新后会保留版本号与更新时间。
+          </p>
+          <div class="rules-article__links">
+            <a class="link-arrow" href={withBase('/news')}>查看赛事公告 <span class="link-arrow__icon" aria-hidden="true">→</span></a>
+            <a class="link-arrow" href={withBase('/ranking')}>查看预选榜单 <span class="link-arrow__icon" aria-hidden="true">→</span></a>
+          </div>
+        </footer>
+      </article>
+    </div>
+  </section>
+
+  <section class="rules-next section section--dark" aria-labelledby="rules-next-title">
+    <div class="container rules-next__inner">
+      <div>
+        <p class="eyebrow">NEXT / 继续了解</p>
+        <h2 id="rules-next-title">规则之外，<br />还有现场。</h2>
+      </div>
+      <div class="rules-next__links">
+        <a href={withBase('/schedule')}>
+          <span class="mono">04 / SCHEDULE</span>
+          <strong>查看现场赛程</strong>
+          <span aria-hidden="true">↗</span>
+        </a>
+        <a href={withBase('/news')}>
+          <span class="mono">05 / NEWS</span>
+          <strong>阅读赛事公告</strong>
+          <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-toc-dock]').forEach((dock) => {
+    const toggle = dock.querySelector<HTMLButtonElement>('[data-toc-toggle]');
+    const panel = dock.querySelector<HTMLElement>('.toc-dock__panel');
+    if (!toggle || !panel) return;
+
+    const setOpen = (open: boolean) => {
+      dock.classList.toggle('is-collapsed', !open);
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? '收起目录' : '展开目录');
+      if (!open && panel.contains(document.activeElement)) toggle.focus();
+    };
+
+    toggle.addEventListener('click', () => {
+      setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+    });
+
+    dock.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+  });
+</script>
+
+<style>
+  .rules-hero-meta {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    padding-top: 1rem;
+    border-top: 1px solid var(--ink-line);
+  }
+
+  .rules-hero-meta dt {
+    color: var(--ink-muted);
+    font-size: 0.5rem;
+  }
+
+  .rules-hero-meta dd {
+    margin-top: 0.25rem;
+    color: var(--paper);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+
+  .rules-status {
+    border-bottom: 1px solid var(--paper-line);
+    background: var(--paper-raised);
+  }
+
+  .rules-status__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.8rem 1.5rem;
+    padding-top: 0.9rem;
+    padding-bottom: 0.9rem;
+  }
+
+  .rules-status__badge {
+    flex: none;
+    padding: 0.18rem 0.5rem;
+    border: 1px solid var(--flare-text);
+    color: var(--flare-text);
+    font-size: 0.55rem;
+  }
+
+  .rules-status--official .rules-status__badge {
+    border-color: var(--signal-text);
+    color: var(--signal-text);
+  }
+
+  .rules-status__inner p {
+    flex: 1 1 30rem;
+    color: var(--paper-muted);
+    font-size: var(--text-xs);
+    line-height: 1.7;
+  }
+
+  .rules-status__inner p strong {
+    color: var(--ink);
+  }
+
+  .rules-status__inner > a {
+    color: var(--ink);
+    font-size: 0.55rem;
+    text-decoration: none;
+    border-bottom: 1px solid var(--ink);
+  }
+
+  .rules-status__inner > a:hover {
+    background: var(--cream);
+  }
+
+  .rules-layout {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: clamp(3rem, 5vw, 6rem);
+    align-items: start;
+  }
+
+  .rules-sidebar {
+    align-self: stretch;
+    min-height: 0;
+  }
+
+  .toc-dock {
+    position: sticky;
+    top: calc(var(--header-height) + 2rem);
+    z-index: 20;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 3rem;
+    width: 17.5rem;
+    height: min(46rem, calc(100dvh - var(--header-height) - 3.5rem));
+    margin-left: calc(-1 * var(--gutter));
+    overflow: hidden;
+    border: 1px solid var(--ink);
+    border-left: 0;
+    background: var(--paper-raised);
+    box-shadow: 8px 8px 0 var(--cream-deep);
+    transition:
+      transform var(--dur-base) var(--ease-snap),
+      height var(--dur-base) var(--ease-snap);
+  }
+
+  .toc-dock.is-collapsed {
+    height: 12rem;
+    transform: translateX(calc(-100% + 3rem));
+  }
+
+  .toc-dock__panel {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity var(--dur-fast) var(--ease-snap) 80ms,
+      visibility 0s linear 0s;
+  }
+
+  .toc-dock.is-collapsed .toc-dock__panel {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--dur-fast) var(--ease-snap),
+      visibility 0s linear var(--dur-fast);
+  }
+
+  .toc-dock__head {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.78rem 1rem;
+    border-bottom: 1px solid var(--ink);
+    background: var(--cream);
+    color: var(--ink);
+  }
+
+  .toc-dock__head p {
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+
+  .toc-dock__count {
+    color: var(--signal-text);
+    font-size: 0.46rem;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .toc-dock__scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0.85rem 1rem 1rem;
+    overscroll-behavior: contain;
+    scrollbar-color: var(--ink-muted) transparent;
+    scrollbar-width: thin;
+  }
+
+  .toc-dock__scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .toc-dock__scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .toc-dock__scroll::-webkit-scrollbar-thumb {
+    background: var(--ink-muted);
+  }
+
+  .toc {
+    margin-top: 0;
+  }
+
+  .toc ol {
+    display: grid;
+    gap: 0.1rem;
+    list-style: none;
+  }
+
+  .toc__item a {
+    display: block;
+    padding: 0.34rem 0 0.34rem 0.75rem;
+    border-left: 1px solid var(--paper-line);
+    color: var(--paper-muted);
+    font-size: var(--text-xs);
+    line-height: 1.5;
+    text-decoration: none;
+    transition:
+      color var(--dur-fast) var(--ease-snap),
+      border-color var(--dur-fast) var(--ease-snap),
+      background-color var(--dur-fast) var(--ease-snap);
+  }
+
+  .toc__item a:hover {
+    border-left-color: var(--flare);
+    background: var(--paper-deep);
+    color: var(--ink);
+  }
+
+  .toc__item--h3 a {
+    padding-left: 1.6rem;
+    font-size: 0.72rem;
+  }
+
+  .rule-doc {
+    margin-top: 1.4rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--paper-line);
+  }
+
+  .rule-doc > .mono {
+    color: var(--paper-muted);
+    font-size: 0.5rem;
+  }
+
+  .rule-doc dl {
+    display: grid;
+    gap: 0.45rem;
+    margin-top: 0.7rem;
+  }
+
+  .rule-doc dl > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.8rem;
+    color: var(--paper-muted);
+    font-size: 0.65rem;
+  }
+
+  .rule-doc dd {
+    margin: 0;
+    color: var(--ink);
+  }
+
+  .toc-dock__foot {
+    flex: none;
+    padding: 0.72rem 1rem;
+    border-top: 1px solid var(--paper-line);
+    background: var(--paper);
+  }
+
+  .rules-sidebar__back {
+    margin-top: 0;
+    font-size: 0.56rem;
+  }
+
+  .toc-dock__spine {
+    grid-row: 1;
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.9rem;
+    padding: 0.55rem 0.4rem;
+    border: 0;
+    border-left: 1px solid var(--ink);
+    background: var(--cream-deep);
+    color: var(--ink);
+    cursor: pointer;
+    transition:
+      background-color var(--dur-fast) var(--ease-snap),
+      color var(--dur-fast) var(--ease-snap);
+  }
+
+  .toc-dock__spine:hover,
+  .toc-dock__spine:focus-visible {
+    background: var(--apricot);
+    color: var(--ink);
+  }
+
+  .toc-dock__spine:focus-visible {
+    outline: 2px solid var(--flare);
+    outline-offset: -4px;
+  }
+
+  .toc-dock__icon {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 1px solid currentColor;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1;
+  }
+
+  .toc-dock__icon-plus {
+    display: none;
+  }
+
+  .toc-dock__spine[aria-expanded='false'] .toc-dock__icon-minus {
+    display: none;
+  }
+
+  .toc-dock__spine[aria-expanded='false'] .toc-dock__icon-plus {
+    display: inline;
+  }
+
+  .toc-dock__label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    white-space: nowrap;
+  }
+
+  .toc-dock__label > span {
+    writing-mode: vertical-rl;
+  }
+
+  .toc-dock__label .mono {
+    font-size: 0.5rem;
+    letter-spacing: 0.18em;
+  }
+
+  .toc-dock__spine-count {
+    color: currentColor;
+    font-size: 0.5rem;
+    letter-spacing: 0.06em;
+  }
+
+  .rules-article {
+    min-width: 0;
+  }
+
+  .rules-article__head {
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--ink);
+  }
+
+  .rules-article__head h2 {
+    margin-top: 1rem;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 1.4rem + 2.2vw, 3.4rem);
+    font-weight: 900;
+    letter-spacing: -0.045em;
+  }
+
+  .rules-article__head > p:not(.eyebrow) {
+    max-width: 46rem;
+    margin-top: 0.7rem;
+    color: var(--paper-muted);
+    font-size: var(--text-sm);
+    line-height: 1.8;
+  }
+
+  .rules-article__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.2rem;
+    align-items: center;
+    margin-top: 1.1rem;
+    color: var(--paper-muted);
+  }
+
+  .rules-article__meta .mono {
+    font-size: 0.5rem;
+  }
+
+  .rules-official-note {
+    display: grid;
+    grid-template-columns: 12rem minmax(0, 1fr);
+    gap: 1rem 2rem;
+    margin-block: 1.5rem 2.5rem;
+    padding: 1rem 1.2rem;
+    border-left: 3px solid var(--apricot);
+    background: var(--paper-raised);
+  }
+
+  .rules-official-note .mono {
+    color: var(--signal-text);
+    font-size: 0.52rem;
+  }
+
+  .rules-official-note p {
+    color: var(--paper-muted);
+    font-size: var(--text-xs);
+    line-height: 1.8;
+  }
+
+  .rules-prose {
+    max-width: 68ch;
+  }
+
+  .rules-article__foot {
+    margin-top: 3.5rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--ink);
+  }
+
+  .rules-article__foot > .mono {
+    color: var(--paper-muted);
+    font-size: 0.5rem;
+  }
+
+  .rules-article__foot > p:nth-child(2) {
+    max-width: 44rem;
+    margin-top: 0.7rem;
+    color: var(--paper-muted);
+    font-size: var(--text-xs);
+    line-height: 1.8;
+  }
+
+  .rules-article__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem 2rem;
+    margin-top: 1.3rem;
+  }
+
+  .mobile-toc {
+    display: none;
+    margin-top: 1.5rem;
+    border: 1px solid var(--ink);
+  }
+
+  .mobile-toc summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .mobile-toc summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mobile-toc[open] summary {
+    border-bottom: 1px solid var(--ink);
+    background: var(--cream);
+  }
+
+  .mobile-toc nav {
+    padding: 0.8rem 1rem 1.1rem;
+  }
+
+  .mobile-toc ol {
+    display: grid;
+    gap: 0.7rem;
+    padding-left: 1rem;
+    font-size: var(--text-sm);
+  }
+
+  .mobile-toc a {
+    text-decoration: none;
+    border-bottom: 1px solid var(--paper-line);
+  }
+
+  .mobile-toc a:hover {
+    background: var(--cream);
+  }
+
+  .rules-next__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.85fr);
+    gap: clamp(2.5rem, 8vw, 8rem);
+    align-items: end;
+  }
+
+  .rules-next h2 {
+    margin-top: 1.2rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 1.6rem + 4.5vw, 6rem);
+    font-weight: 900;
+    letter-spacing: -0.06em;
+    line-height: 0.95;
+  }
+
+  .rules-next__links {
+    display: grid;
+    border-top: 1px solid var(--ink-line);
+  }
+
+  .rules-next__links a {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.4rem 1rem;
+    align-items: center;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--ink-line);
+    color: var(--paper);
+    text-decoration: none;
+  }
+
+  .rules-next__links a:hover {
+    color: var(--signal);
+  }
+
+  .rules-next__links .mono {
+    grid-column: 1;
+    color: var(--ink-muted);
+    font-size: 0.5rem;
+  }
+
+  .rules-next__links strong {
+    grid-column: 1;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+
+  .rules-next__links a > span:last-child {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    color: var(--ink-muted);
+    font-size: 1.3rem;
+  }
+
+  @media (max-width: 960px) {
+    .rules-layout {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .rules-sidebar {
+      display: none;
+    }
+
+    .mobile-toc {
+      display: block;
+    }
+
+    .rules-next__inner {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .rules-status__inner > a {
+      flex: 1 1 100%;
+    }
+
+    .rules-hero-meta {
+      grid-template-columns: 1fr;
+      gap: 0.6rem;
+    }
+
+    .rules-hero-meta > div {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--ink-line);
+    }
+
+    .rules-official-note {
+      grid-template-columns: 1fr;
+      gap: 0.4rem;
+    }
+
+    .rules-article__meta {
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .rules-article__meta .tag {
+      justify-self: start;
+    }
+  }
+</style>

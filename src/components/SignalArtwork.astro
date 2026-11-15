@@ -1,0 +1,384 @@
+---
+const center = { x: 350, y: 388 };
+const ticks = Array.from({ length: 72 }, (_, index) => {
+  const angle = (index / 72) * Math.PI * 2 - Math.PI / 2;
+  const major = index % 6 === 0;
+  const outer = 273;
+  const inner = major ? 255 : 265;
+  return {
+    x1: center.x + Math.cos(angle) * inner,
+    y1: center.y + Math.sin(angle) * inner,
+    x2: center.x + Math.cos(angle) * outer,
+    y2: center.y + Math.sin(angle) * outer,
+    major,
+  };
+});
+---
+
+<figure class="signal-card" aria-labelledby="signal-caption">
+  <div class="signal-card__meta">
+    <span class="mono">VISUAL FIELD / 01</span>
+    <span class="mono">31.86°N · 117.28°E</span>
+  </div>
+
+  <div class="signal-card__canvas">
+    <svg
+      class="signal-art"
+      viewBox="0 0 700 820"
+      role="img"
+      aria-labelledby="signal-svg-title signal-svg-desc"
+    >
+      <title id="signal-svg-title">合肥「第一」音游祭抽象节拍视觉</title>
+      <desc id="signal-svg-desc">
+        由同心判定环、节拍刻度与三条彩色扫描线组成的原创抽象图形，用于赛事主视觉。
+      </desc>
+
+      <defs>
+        <pattern id="signal-grid" width="56" height="56" patternUnits="userSpaceOnUse">
+          <path d="M56 0H0V56" fill="none" stroke="currentColor" stroke-width="1" />
+        </pattern>
+        <clipPath id="signal-ring-clip">
+          <circle cx={center.x} cy={center.y} r="270" />
+        </clipPath>
+        <linearGradient id="fade-bottom" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#171811" stop-opacity="0" />
+          <stop offset="1" stop-color="#171811" stop-opacity="0.9" />
+        </linearGradient>
+      </defs>
+
+      <rect width="700" height="820" fill="#1c1d15" />
+      <rect width="700" height="820" fill="url(#signal-grid)" class="signal-art__grid" />
+
+      <text x="34" y="772" class="signal-art__big-type">HF—01</text>
+
+      <g class="signal-art__crosshair">
+        <path d="M350 48V728M70 388H630" />
+        <circle cx={center.x} cy={center.y} r="286" />
+      </g>
+
+      <g class="signal-art__ticks">
+        {
+          ticks.map((tick) => (
+            <line
+              x1={tick.x1}
+              y1={tick.y1}
+              x2={tick.x2}
+              y2={tick.y2}
+              class:list={{ 'is-major': tick.major }}
+            />
+          ))
+        }
+      </g>
+
+      <g clip-path="url(#signal-ring-clip)">
+        <g class="signal-art__bands" transform={`rotate(-28 ${center.x} ${center.y})`}>
+          <rect x="52" y="296" width="596" height="20" fill="#f3f0e6" opacity="0.9" />
+          <rect x="52" y="324" width="596" height="5" fill="#f3f0e6" opacity="0.4" />
+          <rect x="52" y="342" width="596" height="52" fill="#dcff4f" opacity="0.94" />
+          <rect x="52" y="402" width="596" height="9" fill="#f3f0e6" opacity="0.75" />
+          <rect x="52" y="424" width="596" height="26" fill="#ff5f3b" opacity="0.92" />
+          <rect x="52" y="460" width="596" height="3" fill="#f3f0e6" opacity="0.4" />
+          <rect x="52" y="474" width="596" height="12" fill="#9dd9ee" opacity="0.9" />
+        </g>
+        <rect x="70" y="110" width="560" height="2" fill="#f3f0e6" opacity="0.16" />
+        <rect x="70" y="664" width="560" height="2" fill="#f3f0e6" opacity="0.16" />
+      </g>
+
+      <g class="signal-art__orbit">
+        <circle cx={center.x} cy={center.y} r="188" />
+        <circle cx={center.x} cy={center.y} r="118" class="is-dashed" />
+      </g>
+
+      <g class="signal-art__center">
+        <rect x="322" y="360" width="56" height="56" transform={`rotate(45 ${center.x} ${center.y})`} />
+        <circle cx={center.x} cy={center.y} r="15" />
+        <circle cx={center.x} cy={center.y} r="4.5" fill="#dcff4f" stroke="none" />
+        <path d={`M${center.x - 34} ${center.y}H${center.x - 22}M${center.x + 22} ${center.y}H${center.x + 34}`} />
+      </g>
+
+      <rect x="0" y="600" width="700" height="220" fill="url(#fade-bottom)" />
+
+      <g class="signal-art__labels">
+        <text x="34" y="84">RHYTHM / PRECISION / LIVE</text>
+        <text x="666" y="84" text-anchor="end">ARC / 01</text>
+        <text x="34" y="760">HEFEI OTOGE FES</text>
+        <text x="666" y="760" text-anchor="end">ONLINE QUALIFIER</text>
+      </g>
+
+      <g class="signal-art__corner" aria-hidden="true">
+        <path d="M28 28H74M28 28V74" />
+        <path d="M672 28H626M672 28V74" />
+        <path d="M28 792H74M28 792V746" />
+        <path d="M672 792H626M672 792V746" />
+      </g>
+    </svg>
+
+    <div class="signal-card__tag">
+      <span class="mono">CURRENT TITLE</span>
+      <strong>Arcaea</strong>
+      <span class="signal-card__tag-cn">当前比赛项目</span>
+    </div>
+
+    <div class="signal-card__beat" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <figcaption class="signal-card__foot" id="signal-caption">
+    <span class="mono">SIGNAL READY / 线上预选筹备中</span>
+  </figcaption>
+</figure>
+
+<style>
+  .signal-card {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    width: 100%;
+    max-width: 34rem;
+    margin: 0;
+    border: 1px solid rgba(243, 240, 230, 0.22);
+    background: #1c1d15;
+    box-shadow: 14px 14px 0 rgba(220, 255, 79, 0.09);
+  }
+
+  .signal-card::before {
+    position: absolute;
+    z-index: 2;
+    top: -1px;
+    right: -1px;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-bottom: 1px solid rgba(243, 240, 230, 0.22);
+    border-left: 1px solid rgba(243, 240, 230, 0.22);
+    background:
+      linear-gradient(45deg, transparent 48%, rgba(243, 240, 230, 0.22) 49%, rgba(243, 240, 230, 0.22) 51%, transparent 52%);
+    content: "";
+    pointer-events: none;
+  }
+
+  .signal-card__meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0.9rem;
+    border-bottom: 1px solid rgba(243, 240, 230, 0.16);
+    color: var(--ink-muted);
+  }
+
+  .signal-card__meta .mono {
+    font-size: 0.52rem;
+    letter-spacing: 0.08em;
+  }
+
+  .signal-card__canvas {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 700 / 820;
+    min-height: 0;
+  }
+
+  .signal-art {
+    width: 100%;
+    height: 100%;
+    color: rgba(243, 240, 230, 0.12);
+  }
+
+  .signal-art__big-type {
+    fill: none;
+    stroke: rgba(243, 240, 230, 0.07);
+    stroke-width: 1.5;
+    font-family: var(--font-latin);
+    font-size: 238px;
+    font-weight: 900;
+    letter-spacing: -18px;
+  }
+
+  .signal-art__grid {
+    opacity: 0.38;
+  }
+
+  .signal-art__crosshair path,
+  .signal-art__crosshair circle {
+    fill: none;
+    stroke: rgba(243, 240, 230, 0.2);
+    stroke-width: 1;
+  }
+
+  .signal-art__crosshair path {
+    stroke-dasharray: 3 9;
+  }
+
+  .signal-art__ticks line {
+    stroke: rgba(243, 240, 230, 0.34);
+    stroke-width: 1;
+  }
+
+  .signal-art__ticks line.is-major {
+    stroke: rgba(243, 240, 230, 0.7);
+    stroke-width: 1.5;
+  }
+
+  .signal-art__orbit circle {
+    fill: none;
+    stroke: rgba(243, 240, 230, 0.44);
+    stroke-width: 1;
+  }
+
+  .signal-art__orbit circle.is-dashed {
+    stroke: rgba(243, 240, 230, 0.28);
+    stroke-dasharray: 4 8;
+  }
+
+  .signal-art__center rect,
+  .signal-art__center circle,
+  .signal-art__center path {
+    fill: none;
+    stroke: rgba(243, 240, 230, 0.9);
+    stroke-width: 1.5;
+  }
+
+  .signal-art__labels text {
+    fill: rgba(243, 240, 230, 0.66);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+
+  .signal-art__corner path {
+    fill: none;
+    stroke: rgba(243, 240, 230, 0.48);
+    stroke-width: 1;
+  }
+
+  .signal-card__tag {
+    position: absolute;
+    top: 13%;
+    right: 0;
+    display: grid;
+    gap: 0.15rem;
+    min-width: 9.75rem;
+    padding: 0.7rem 1rem;
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    border-left: 1px solid var(--ink);
+    background: var(--signal);
+    color: var(--ink);
+  }
+
+  .signal-card__tag .mono {
+    font-size: 0.5rem;
+    font-weight: 600;
+  }
+
+  .signal-card__tag strong {
+    font-family: var(--font-latin);
+    font-size: 1.7rem;
+    font-weight: 900;
+    letter-spacing: -0.045em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .signal-card__tag-cn {
+    font-size: 0.65rem;
+    line-height: 1.4;
+  }
+
+  .signal-card__beat {
+    position: absolute;
+    bottom: 1.1rem;
+    left: 0.9rem;
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 1.4rem;
+  }
+
+  .signal-card__beat span {
+    width: 3px;
+    background: var(--signal);
+    animation: signal-beat 1.4s var(--ease-snap) infinite alternate;
+  }
+
+  .signal-card__beat span:nth-child(1) {
+    height: 35%;
+    animation-delay: -0.1s;
+  }
+
+  .signal-card__beat span:nth-child(2) {
+    height: 80%;
+    animation-delay: -0.55s;
+  }
+
+  .signal-card__beat span:nth-child(3) {
+    height: 52%;
+    animation-delay: -0.25s;
+  }
+
+  .signal-card__beat span:nth-child(4) {
+    height: 100%;
+    animation-delay: -0.75s;
+  }
+
+  .signal-card__beat span:nth-child(5) {
+    height: 44%;
+    animation-delay: -0.4s;
+  }
+
+  .signal-card__foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 0.9rem;
+    border-top: 1px solid rgba(243, 240, 230, 0.16);
+    color: var(--ink-muted);
+  }
+
+  .signal-card__foot .mono {
+    font-size: 0.48rem;
+    letter-spacing: 0.06em;
+  }
+
+  .signal-card__foot .mono:last-child {
+    text-align: right;
+  }
+
+  @keyframes signal-beat {
+    from {
+      transform: scaleY(0.5);
+      opacity: 0.55;
+    }
+    to {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .signal-card {
+      max-width: none;
+      box-shadow: 8px 8px 0 rgba(220, 255, 79, 0.09);
+    }
+
+    .signal-card__tag {
+      right: 0.75rem;
+      padding: 0.55rem 0.75rem;
+    }
+
+    .signal-card__foot {
+      display: grid;
+    }
+
+    .signal-card__foot .mono:last-child {
+      text-align: left;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .signal-card__beat span {
+      animation: none;
+      opacity: 0.8;
+    }
+  }
+</style>

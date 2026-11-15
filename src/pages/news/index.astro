@@ -1,0 +1,524 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import NewsRow from '../../components/NewsRow.astro';
+import StatusBadge from '../../components/StatusBadge.astro';
+import { formatDate } from '../../lib/format';
+import { withBase } from '../../lib/url';
+
+const posts = (await getCollection('news')).sort((a, b) => {
+  if (a.data.pinned !== b.data.pinned) return a.data.pinned ? -1 : 1;
+  return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
+});
+
+const pinnedPost = posts.find((post) => post.data.pinned);
+const remainingPosts = posts.filter((post) => post.id !== pinnedPost?.id);
+const latestPost = [...posts].sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())[0];
+const categories = ['赛事公告', '规则说明', '筹备日志'] as const;
+const categoryCounts = categories.map((category) => ({
+  category,
+  count: posts.filter((post) => post.data.category === category).length,
+}));
+---
+
+<BaseLayout
+  title="赛事公告"
+  description="合肥「第一」音游祭赛事公告列表：获取比赛章程、线上预选、现场赛程与赛事安排的最新信息。"
+>
+  <PageHero
+    index="05"
+    kicker="NEWS / ANNOUNCEMENTS"
+    title="赛事公告"
+    englishTitle="NEWS & UPDATES"
+    description="日期、场馆、规则与赛程信息会通过公告持续更新。置顶公告单独展示，其余内容按发布时间排列。"
+    status={{ label: '正式公告已发布', tone: 'active' }}
+    accent="violet"
+  >
+    <dl class="news-hero-meta">
+      <div>
+        <dt class="mono">ENTRIES / 公告数</dt>
+        <dd>{String(posts.length).padStart(2, '0')}</dd>
+      </div>
+      <div>
+        <dt class="mono">LATEST / 最近更新</dt>
+        <dd>{latestPost ? formatDate(latestPost.data.pubDate) : '待发布'}</dd>
+      </div>
+      <div>
+        <dt class="mono">MODE / 内容状态</dt>
+        <dd>正式公告</dd>
+      </div>
+    </dl>
+  </PageHero>
+
+  <div class="news-strip">
+    <div class="container news-strip__inner">
+      <span class="news-strip__badge mono">NOTICE / 公告说明</span>
+      <p>本站公告均由赛事筹备组发布；比赛日期、场地与现场安排以最新公告及《比赛章程》为准。</p>
+      <a class="mono" href={withBase('/rules')}>阅读比赛章程 <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+
+  <section class="news-index section" aria-labelledby="news-list-title">
+    <div class="container">
+      {
+        pinnedPost ? (
+          <article class="pinned-news" data-reveal>
+            <div class="pinned-news__top">
+              <span class="tag tag--cream">PINNED / 置顶</span>
+              <span class="mono">ANNOUNCEMENT / {pinnedPost.data.category}</span>
+              <time datetime={pinnedPost.data.pubDate.toISOString()}>{formatDate(pinnedPost.data.pubDate)}</time>
+            </div>
+
+            <div class="pinned-news__body">
+              <div class="pinned-news__main">
+                <h2>
+                  <a href={withBase(`/news/${pinnedPost.id}`)}>{pinnedPost.data.title}</a>
+                </h2>
+                <p>{pinnedPost.data.description}</p>
+              </div>
+              <div class="pinned-news__aside">
+                <span class="pinned-news__mark mono">IMPORTANT / 001</span>
+                <span class="tag">正式发布</span>
+                <a class="btn btn--light" href={withBase(`/news/${pinnedPost.id}`)}>
+                  阅读公告
+                  <span class="btn__arrow" aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </div>
+
+            <span class="pinned-news__ghost" aria-hidden="true">PINNED</span>
+          </article>
+        ) : (
+          <div class="news-empty notice" role="note">
+            当前没有置顶公告。若新增 Markdown 公告并设置 <code>pinned: true</code>，它会出现在这里。
+          </div>
+        )
+      }
+
+      <div class="news-layout">
+        <div class="news-list-col">
+          <div class="news-list-head">
+            <div>
+              <p class="eyebrow">ALL POSTS / 全部公告</p>
+              <h2 id="news-list-title">按时间浏览</h2>
+            </div>
+            <StatusBadge label={`${remainingPosts.length} 篇`} tone="upcoming" />
+          </div>
+
+          {
+            remainingPosts.length > 0 ? (
+              <div class="news-list" data-reveal>
+                {remainingPosts.map((post, index) => (
+                  <NewsRow post={post} index={index} />
+                ))}
+              </div>
+            ) : pinnedPost ? (
+              <div class="news-empty notice" role="note">
+                目前只有一篇置顶公告。后续新增的公告会按发布时间排列在这里。
+              </div>
+            ) : (
+              <div class="news-empty">
+                <p class="news-empty__mark mono">NO POSTS / 00</p>
+                <h3>还没有公告</h3>
+                <p>在 <code>src/content/news/</code> 中添加 Markdown 文件后，这里会自动生成公告列表与详情页。</p>
+              </div>
+            )
+          }
+        </div>
+
+        <aside class="news-aside" aria-label="公告辅助信息">
+          <div class="aside-block">
+            <p class="eyebrow">CATEGORIES / 分类</p>
+            <ul class="category-list" role="list">
+              {
+                categoryCounts.map(({ category, count }) => (
+                  <li>
+                    <span>{category}</span>
+                    <span class="mono">{String(count).padStart(2, '0')}</span>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+
+          <div class="aside-block">
+            <p class="eyebrow">QUICK LINKS / 快速入口</p>
+            <nav class="aside-links" aria-label="公告页快速入口">
+              <a href={withBase('/ranking')}><span>预选榜单</span><span aria-hidden="true">↗</span></a>
+              <a href={withBase('/rules')}><span>比赛章程</span><span aria-hidden="true">↗</span></a>
+              <a href={withBase('/schedule')}><span>现场赛程</span><span aria-hidden="true">↗</span></a>
+            </nav>
+          </div>
+
+          <div class="aside-note">
+            <p class="mono">CONTENT NOTE</p>
+            <p>
+              公告正文由 Markdown 管理，列表会自动读取标题、摘要、日期、分类与置顶状态。
+              未在公告中明确的日期、场地与现场安排仍待确认。
+            </p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .news-hero-meta {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    width: 100%;
+    padding-top: 1rem;
+    border-top: 1px solid var(--ink-line);
+  }
+
+  .news-hero-meta dt {
+    color: var(--ink-muted);
+    font-size: 0.5rem;
+  }
+
+  .news-hero-meta dd {
+    margin-top: 0.25rem;
+    color: var(--paper);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: 1.5;
+  }
+
+  .news-strip {
+    border-bottom: 1px solid var(--paper-line);
+    background: var(--paper-raised);
+  }
+
+  .news-strip__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.7rem 1.5rem;
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+  }
+
+  .news-strip__badge {
+    flex: none;
+    padding: 0.18rem 0.5rem;
+    border: 1px solid var(--violet);
+    color: #5f4a9c;
+    font-size: 0.55rem;
+  }
+
+  .news-strip__inner p {
+    flex: 1 1 30rem;
+    color: var(--paper-muted);
+    font-size: var(--text-xs);
+    line-height: 1.7;
+  }
+
+  .news-strip__inner > a {
+    color: var(--ink);
+    font-size: 0.55rem;
+    text-decoration: none;
+    border-bottom: 1px solid var(--ink);
+  }
+
+  .news-strip__inner > a:hover {
+    background: var(--cream);
+  }
+
+  .pinned-news {
+    --fg: var(--ink);
+    --fg-muted: var(--paper-muted);
+    --border: var(--paper-line);
+    position: relative;
+    overflow: hidden;
+    padding: clamp(1.4rem, 3.5vw, 2.5rem);
+    border-top: 4px solid var(--cream-deep);
+    background: var(--cream-soft);
+    color: var(--ink);
+  }
+
+  .pinned-news__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.7rem 1.2rem;
+    color: var(--paper-muted);
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.04em;
+  }
+
+  .pinned-news__top time {
+    margin-left: auto;
+  }
+
+  .pinned-news__body {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(12rem, 0.3fr);
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: end;
+    margin-top: clamp(2rem, 4vw, 3rem);
+  }
+
+  .pinned-news h2 {
+    max-width: 19ch;
+    text-wrap: balance;
+    font-family: var(--font-display);
+    font-size: clamp(2.1rem, 1.4rem + 3.1vw, 4.5rem);
+    font-weight: 900;
+    letter-spacing: -0.055em;
+    line-height: 1.06;
+  }
+
+  .pinned-news h2 a {
+    text-decoration: none;
+  }
+
+  .pinned-news h2 a:hover {
+    color: var(--flare-text);
+  }
+
+  .pinned-news__main > p {
+    max-width: 48rem;
+    margin-top: 1.3rem;
+    color: var(--paper-muted);
+    font-size: var(--text-sm);
+    line-height: 1.85;
+  }
+
+  .pinned-news__aside {
+    display: grid;
+    justify-items: start;
+    gap: 0.8rem;
+    padding-left: 1.2rem;
+    border-left: 1px solid var(--paper-line);
+  }
+
+  .pinned-news__mark {
+    color: var(--paper-muted);
+    font-size: 0.5rem;
+  }
+
+  .pinned-news__aside .btn {
+    width: 100%;
+    margin-top: 0.4rem;
+  }
+
+  .pinned-news__ghost {
+    position: absolute;
+    right: -0.02em;
+    bottom: -0.25em;
+    color: transparent;
+    font-family: var(--font-latin);
+    font-size: clamp(6rem, 18vw, 17rem);
+    font-weight: 900;
+    letter-spacing: -0.07em;
+    line-height: 0.8;
+    -webkit-text-stroke: 1px rgba(23, 24, 17, 0.07);
+    pointer-events: none;
+  }
+
+  .news-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.28fr);
+    gap: clamp(2.5rem, 6vw, 6rem);
+    align-items: start;
+    margin-top: clamp(3.5rem, 6vw, 5.5rem);
+  }
+
+  .news-list-head {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--ink);
+  }
+
+  .news-list-head h2 {
+    margin-top: 0.8rem;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 1.4rem + 2vw, 3.2rem);
+    font-weight: 900;
+    letter-spacing: -0.045em;
+  }
+
+  .news-list {
+    margin-top: 1.3rem;
+  }
+
+  .news-aside {
+    position: sticky;
+    top: calc(var(--header-height) + 2rem);
+    display: grid;
+    gap: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--ink);
+  }
+
+  .aside-block .eyebrow {
+    font-size: 0.55rem;
+  }
+
+  .category-list {
+    display: grid;
+    margin-top: 1rem;
+    list-style: none;
+    border-top: 1px solid var(--paper-line);
+  }
+
+  .category-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--paper-line);
+    color: var(--paper-muted);
+    font-size: var(--text-sm);
+  }
+
+  .category-list li .mono {
+    color: var(--ink);
+    font-size: 0.6rem;
+  }
+
+  .aside-links {
+    display: grid;
+    margin-top: 1rem;
+    border-top: 1px solid var(--paper-line);
+  }
+
+  .aside-links a {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--paper-line);
+    color: var(--ink);
+    font-size: var(--text-sm);
+    text-decoration: none;
+  }
+
+  .aside-links a:hover {
+    background: var(--cream);
+  }
+
+  .aside-note {
+    padding: 1rem;
+    border-left: 3px solid var(--violet);
+    background: var(--paper-raised);
+  }
+
+  .aside-note .mono {
+    color: var(--paper-muted);
+    font-size: 0.48rem;
+  }
+
+  .aside-note p:last-child {
+    margin-top: 0.55rem;
+    color: var(--paper-muted);
+    font-size: var(--text-xs);
+    line-height: 1.75;
+  }
+
+  .news-empty {
+    margin-top: 1.5rem;
+  }
+
+  .news-empty__mark {
+    color: var(--flare-text);
+    font-size: 0.55rem;
+  }
+
+  .news-empty h3 {
+    margin-top: 0.8rem;
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 900;
+  }
+
+  .news-empty p {
+    max-width: 36rem;
+    margin-top: 0.5rem;
+    color: var(--paper-muted);
+    font-size: var(--text-sm);
+    line-height: 1.8;
+  }
+
+  .news-empty code,
+  .news-layout code {
+    padding: 0.1em 0.3em;
+    background: var(--paper-deep);
+    font-family: var(--font-mono);
+    font-size: 0.82em;
+  }
+
+  @media (max-width: 960px) {
+    .news-layout {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+
+    .news-aside {
+      position: static;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .aside-note {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .news-hero-meta {
+      grid-template-columns: 1fr;
+      gap: 0.6rem;
+    }
+
+    .news-hero-meta > div {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--ink-line);
+    }
+
+    .news-strip__inner > a {
+      flex: 1 1 100%;
+    }
+
+    .pinned-news__top time {
+      width: 100%;
+      margin-left: 0;
+    }
+
+    .pinned-news__body {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .pinned-news__aside {
+      padding-top: 1rem;
+      padding-left: 0;
+      border-top: 1px solid var(--ink-line);
+      border-left: 0;
+    }
+
+    .news-list-head {
+      align-items: flex-start;
+    }
+
+    .news-aside {
+      grid-template-columns: 1fr;
+    }
+
+    .aside-note {
+      grid-column: 1;
+    }
+  }
+</style>

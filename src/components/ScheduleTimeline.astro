@@ -1,0 +1,176 @@
+---
+import StatusBadge from './StatusBadge.astro';
+import type { ScheduleItem } from '../data/schedule';
+
+interface Props {
+  items: ScheduleItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<ol class="timeline" role="list">
+  {
+    items.map((item, index) => (
+      <li class="timeline__item">
+        <div class="timeline__time">
+          <span class="timeline__code mono">{item.code}</span>
+          <span class="timeline__time-label mono">{item.time}</span>
+        </div>
+        <div class="timeline__rail" aria-hidden="true">
+          <span class="timeline__dot"></span>
+          {index < items.length - 1 && <span class="timeline__line"></span>}
+        </div>
+        <div class="timeline__content">
+          <div class="timeline__head">
+            <h3>{item.title}</h3>
+            <StatusBadge label={item.status} tone={item.statusTone} />
+          </div>
+          <p>{item.description}</p>
+          {item.note && <p class="timeline__note">{item.note}</p>}
+        </div>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .timeline__item {
+    display: grid;
+    grid-template-columns: 10rem 2rem minmax(0, 1fr);
+    gap: 0 clamp(1rem, 2.6vw, 2.5rem);
+    min-height: 9rem;
+  }
+
+  .timeline__time {
+    display: grid;
+    align-content: start;
+    gap: 0.45rem;
+    padding-top: 0.2rem;
+    text-align: right;
+  }
+
+  .timeline__code {
+    color: var(--flare-text);
+    font-size: 0.65rem;
+  }
+
+  .timeline__time-label {
+    color: var(--fg-muted);
+    font-size: 0.6rem;
+  }
+
+  .timeline__rail {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    padding-top: 0.35rem;
+  }
+
+  .timeline__dot {
+    position: relative;
+    z-index: 1;
+    width: 0.65rem;
+    height: 0.65rem;
+    border: 1px solid var(--ink);
+    border-radius: 50%;
+    background: var(--paper);
+    box-shadow: 0 0 0 4px var(--paper);
+  }
+
+  .timeline__item:first-child .timeline__dot {
+    background: var(--cream-deep);
+  }
+
+  .timeline__line {
+    position: absolute;
+    top: 1.25rem;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: var(--paper-line);
+  }
+
+  .timeline__content {
+    padding-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .timeline__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.7rem 1.2rem;
+    min-height: 1.9rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--paper-line);
+  }
+
+  .timeline__head h3 {
+    font-family: var(--font-display);
+    font-size: clamp(1.55rem, 1.25rem + 1.1vw, 2.2rem);
+    font-weight: 900;
+    letter-spacing: -0.035em;
+    line-height: 1.15;
+  }
+
+  .timeline__content > p {
+    max-width: 44rem;
+    margin-top: 0.85rem;
+    color: var(--fg-muted);
+    font-size: var(--text-sm);
+    line-height: 1.85;
+  }
+
+  .timeline__note {
+    color: var(--flare-text) !important;
+  }
+
+  @media (max-width: 760px) {
+    .timeline__item {
+      grid-template-columns: 1.5rem minmax(0, 1fr);
+      gap: 0 1rem;
+      min-height: 0;
+    }
+
+    .timeline__time {
+      grid-row: 1;
+      grid-column: 2;
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+      padding-top: 0;
+      text-align: left;
+    }
+
+    .timeline__rail {
+      grid-row: 1 / span 2;
+      grid-column: 1;
+      padding-top: 0.4rem;
+    }
+
+    .timeline__content {
+      grid-row: 2;
+      grid-column: 2;
+      padding-top: 0.5rem;
+      padding-bottom: 2.5rem;
+    }
+
+    .timeline__head {
+      align-items: flex-start;
+    }
+
+    .timeline__head h3 {
+      font-size: 1.5rem;
+    }
+
+    .timeline__content > p {
+      font-size: var(--text-sm);
+    }
+  }
+</style>

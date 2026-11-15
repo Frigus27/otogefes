@@ -1,0 +1,497 @@
+---
+import BrandLogo from './BrandLogo.astro';
+import { event, navigation } from '../config/event';
+import { withBase } from '../lib/url';
+
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+const rawPath = Astro.url.pathname;
+const currentPath = (() => {
+  const withoutBase =
+    basePath && (rawPath === basePath || rawPath.startsWith(`${basePath}/`))
+      ? rawPath.slice(basePath.length) || '/'
+      : rawPath;
+  return withoutBase.length > 1 ? withoutBase.replace(/\/+$/, '') : withoutBase;
+})();
+
+const isActive = (href: string) => {
+  const target = href.length > 1 ? href.replace(/\/+$/, '') : href;
+  return target === '/'
+    ? currentPath === '/'
+    : currentPath === target || currentPath.startsWith(`${target}/`);
+};
+
+const menuItems = [{ href: '/', label: '首页', english: 'Index' }, ...navigation];
+---
+
+<header class="site-header">
+  <div class="site-header__inner container">
+    <a class="brand" href={withBase('/')} aria-label={`${event.name}首页`}>
+      <BrandLogo class="brand__logo" />
+    </a>
+
+    <nav class="desktop-nav" aria-label="主导航">
+      <ul class="desktop-nav__list" role="list">
+        {
+          navigation.map((item) => (
+            <li>
+              <a
+                class:list={['desktop-nav__link', { 'is-active': isActive(item.href) }]}
+                href={withBase(item.href)}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+              >
+                <span class="desktop-nav__label">{item.label}</span>
+                <span class="desktop-nav__en mono">{item.english}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="site-header__aside">
+      <span class="header-status">
+        <span class="header-status__dot" aria-hidden="true"></span>
+        <span class="header-status__text">{event.status.label}</span>
+        <span class="header-status__phase">{event.status.phase} · {event.status.rangeShort}</span>
+      </span>
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        data-menu-toggle
+      >
+        <span class="menu-toggle__label">菜单</span>
+        <span class="menu-toggle__icon" aria-hidden="true">
+          <span></span>
+          <span></span>
+        </span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<dialog class="mobile-menu" id="mobile-menu" aria-labelledby="mobile-menu-title">
+  <div class="mobile-menu__inner">
+    <div class="mobile-menu__top">
+      <a class="brand brand--dialog" href={withBase('/')} aria-label={`${event.name}首页`}>
+        <BrandLogo class="brand__logo" />
+      </a>
+      <button class="mobile-menu__close" type="button" data-menu-close aria-label="关闭导航">
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+
+    <h2 class="sr-only" id="mobile-menu-title">站点导航</h2>
+
+    <nav class="mobile-nav" aria-label="移动端主导航">
+      <ul class="mobile-nav__list" role="list">
+        {
+          menuItems.map((item, index) => (
+            <li>
+              <a
+                class:list={['mobile-nav__link', { 'is-active': isActive(item.href) }]}
+                href={withBase(item.href)}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+              >
+                <span class="mobile-nav__num mono">{String(index + 1).padStart(2, '0')}</span>
+                <span class="mobile-nav__label">{item.label}</span>
+                <span class="mobile-nav__en mono">{item.english}</span>
+                <span class="mobile-nav__arrow" aria-hidden="true">↗</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="mobile-menu__foot">
+      <div>
+        <p class="mono">CURRENT STATUS</p>
+        <p class="mobile-menu__status">{event.status.label} · {event.status.phase}</p>
+        <p class="mobile-menu__status">{event.status.description}</p>
+      </div>
+      <div>
+        <p class="mono">PROJECT</p>
+        <p class="mobile-menu__status">{event.project.name}</p>
+      </div>
+      <p class="mobile-menu__note">比赛章程 v3.4 已发布；场地与现场时刻待统一公告。</p>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .site-header {
+    position: sticky;
+    z-index: 100;
+    top: 0;
+    border-bottom: 1px solid var(--ink-line);
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .site-header::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--signal);
+    content: "";
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    min-height: var(--header-height);
+    padding-top: 3px;
+  }
+
+  .brand {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    color: var(--paper);
+    text-decoration: none;
+  }
+
+  .brand__logo {
+    width: 190px;
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+
+  .brand:hover .brand__logo {
+    transform: translateY(-1px);
+  }
+
+  .desktop-nav__list {
+    display: flex;
+    align-items: stretch;
+    gap: 0.2rem;
+    list-style: none;
+  }
+
+  .desktop-nav__link {
+    position: relative;
+    display: grid;
+    gap: 0.02rem;
+    padding: 0.45rem 0.8rem;
+    color: var(--ink-muted);
+    text-decoration: none;
+    transition:
+      color var(--dur-fast) var(--ease-snap),
+      background-color var(--dur-fast) var(--ease-snap);
+  }
+
+  .desktop-nav__link::after {
+    position: absolute;
+    right: 0.8rem;
+    bottom: 0;
+    left: 0.8rem;
+    height: 2px;
+    transform: scaleX(0);
+    transform-origin: left;
+    background: var(--signal);
+    content: "";
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+
+  .desktop-nav__link:hover,
+  .desktop-nav__link.is-active {
+    background: var(--ink-raised);
+    color: var(--paper);
+  }
+
+  .desktop-nav__link:hover::after,
+  .desktop-nav__link.is-active::after {
+    transform: scaleX(1);
+  }
+
+  .desktop-nav__label {
+    font-size: 0.84rem;
+    font-weight: 500;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+
+  .desktop-nav__en {
+    color: inherit;
+    font-size: 0.55rem;
+    line-height: 1.3;
+    opacity: 0.8;
+  }
+
+  .site-header__aside {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .header-status {
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: center;
+    gap: 0 0.45rem;
+    padding-left: 1rem;
+    border-left: 1px solid var(--ink-line);
+    font-family: var(--font-mono);
+  }
+
+  .header-status__dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--signal);
+    box-shadow: 0 0 0 3px rgba(220, 255, 79, 0.12);
+  }
+
+  .header-status__text {
+    color: var(--signal);
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .header-status__phase {
+    grid-column: 2;
+    color: var(--ink-muted);
+    font-size: 0.58rem;
+    letter-spacing: 0.04em;
+  }
+
+  .menu-toggle {
+    display: none;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.55rem 0;
+    background: transparent;
+    color: var(--paper);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .menu-toggle__icon {
+    display: grid;
+    gap: 5px;
+    width: 1.35rem;
+  }
+
+  .menu-toggle__icon span {
+    display: block;
+    height: 1px;
+    background: currentColor;
+  }
+
+  .mobile-menu {
+    width: 100vw;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .mobile-menu::backdrop {
+    background: rgba(23, 24, 17, 0.75);
+  }
+
+  .mobile-menu__inner {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+    padding: 1.15rem var(--gutter) 2rem;
+  }
+
+  .mobile-menu__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--ink-line);
+  }
+
+  .mobile-menu__close {
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    place-items: center;
+    border: 1px solid var(--ink-line);
+    background: transparent;
+    color: var(--paper);
+    font-family: var(--font-sans);
+    font-size: 1.7rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .mobile-menu__close:hover {
+    border-color: var(--signal);
+    color: var(--signal);
+  }
+
+  .mobile-nav {
+    margin-top: 1.5rem;
+  }
+
+  .mobile-nav__list {
+    list-style: none;
+  }
+
+  .mobile-nav__link {
+    display: grid;
+    grid-template-columns: 2rem 1fr auto;
+    align-items: center;
+    gap: 0.35rem 0.8rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--ink-line);
+    color: var(--paper);
+    text-decoration: none;
+  }
+
+  .mobile-nav__num {
+    align-self: start;
+    padding-top: 0.35rem;
+    color: var(--ink-muted);
+    font-size: 0.6rem;
+  }
+
+  .mobile-nav__label {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 8vw, 2.7rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+
+  .mobile-nav__en {
+    grid-column: 2;
+    color: var(--ink-muted);
+    font-size: 0.58rem;
+  }
+
+  .mobile-nav__arrow {
+    grid-row: 1 / span 2;
+    grid-column: 3;
+    color: var(--ink-muted);
+    font-size: 1.5rem;
+    transition: transform var(--dur-fast) var(--ease-snap);
+  }
+
+  .mobile-nav__link:hover .mobile-nav__arrow,
+  .mobile-nav__link.is-active .mobile-nav__arrow {
+    color: var(--signal);
+    transform: translate(0.2rem, -0.2rem);
+  }
+
+  .mobile-nav__link.is-active .mobile-nav__label {
+    color: var(--signal);
+  }
+
+  .mobile-menu__foot {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: auto;
+    padding-top: 2rem;
+    color: var(--ink-muted);
+  }
+
+  .mobile-menu__foot .mono {
+    color: var(--ink-muted);
+    font-size: 0.55rem;
+  }
+
+  .mobile-menu__status {
+    color: var(--paper);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: 1.6;
+  }
+
+  .mobile-menu__note {
+    grid-column: 1 / -1;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--ink-line);
+    color: var(--ink-muted);
+    font-size: var(--text-xs);
+  }
+
+  @media (max-width: 1080px) {
+    .header-status__phase {
+      display: none;
+    }
+
+    .desktop-nav__link {
+      padding-inline: 0.55rem;
+    }
+
+    .desktop-nav__link::after {
+      right: 0.55rem;
+      left: 0.55rem;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .desktop-nav,
+    .header-status {
+      display: none;
+    }
+
+    .menu-toggle {
+      display: inline-flex;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .brand__logo {
+      width: 168px;
+    }
+  }
+</style>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const dialog = document.querySelector<HTMLDialogElement>('#mobile-menu');
+  const closeButton = document.querySelector<HTMLButtonElement>('[data-menu-close]');
+
+  const setExpanded = (expanded: boolean) => {
+    toggle?.setAttribute('aria-expanded', String(expanded));
+  };
+
+  const openMenu = () => {
+    if (!dialog || dialog.open) return;
+    dialog.showModal();
+    document.body.classList.add('menu-open');
+    setExpanded(true);
+  };
+
+  const closeMenu = () => {
+    if (!dialog?.open) return;
+    dialog.close();
+  };
+
+  toggle?.addEventListener('click', openMenu);
+  closeButton?.addEventListener('click', closeMenu);
+
+  dialog?.addEventListener('click', (event) => {
+    if (event.target === dialog) closeMenu();
+  });
+
+  dialog?.addEventListener('close', () => {
+    document.body.classList.remove('menu-open');
+    setExpanded(false);
+    toggle?.focus();
+  });
+
+  dialog?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', closeMenu);
+  });
+</script>

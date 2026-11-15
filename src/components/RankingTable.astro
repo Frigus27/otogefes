@@ -1,0 +1,600 @@
+---
+import type { RankingBoard } from '../lib/ranking';
+import { renderRankingTable } from '../lib/ranking-render';
+
+interface Props {
+  board: RankingBoard;
+  emptyText?: string;
+}
+
+const { board, emptyText = '当前还没有可展示的有效成绩。' } = Astro.props;
+---
+
+<div class="ranking-table-host" data-ranking-table set:html={renderRankingTable(board, emptyText)} />
+
+<style is:global>
+  .ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .ranking-table th {
+    padding: 0.65rem 0.55rem 0.75rem;
+    border-top: 2px solid var(--cream-deep);
+    border-bottom: 1px solid var(--ink);
+    color: var(--paper-muted);
+    font-family: var(--font-mono);
+    font-size: 0.54rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    line-height: 1.4;
+    text-align: left;
+    text-transform: uppercase;
+    vertical-align: bottom;
+  }
+
+  .col-rank {
+    width: 4.2rem;
+  }
+
+  .col-player {
+    width: 11.5rem;
+  }
+
+  .ranking-table th.col-player {
+    text-transform: none;
+  }
+
+  .col-video {
+    width: 4.5rem;
+  }
+
+
+
+  .col-total {
+    width: 7.5rem;
+  }
+
+  .col-score {
+    width: 8.5rem;
+  }
+
+  .col-time {
+    width: 8.2rem;
+  }
+
+  .col-status {
+    width: 6rem;
+  }
+
+  .ranking-table th.col-total,
+  .ranking-table th.col-score {
+    text-align: center;
+  }
+
+  .ranking-table th.col-video,
+  .ranking-table th.col-time,
+  .ranking-table th.col-status {
+    text-align: right;
+  }
+
+  .song-head {
+    display: grid;
+    justify-items: center;
+    gap: 0.12rem;
+    min-width: 0;
+  }
+
+  .song-head__code {
+    color: var(--paper-muted);
+    font-family: var(--font-mono);
+    font-size: 0.52rem;
+    letter-spacing: 0.06em;
+  }
+
+  .song-head__title {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    text-transform: none;
+    white-space: nowrap;
+  }
+
+  .ranking-row {
+    transition: background-color var(--dur-fast) var(--ease-snap);
+  }
+
+  .ranking-row:hover {
+    background: color-mix(in srgb, var(--paper-raised) 74%, transparent);
+  }
+
+  .ranking-row td {
+    padding: 0.9rem 0.55rem;
+    vertical-align: top;
+  }
+
+  .ranking-row:first-child td {
+    padding-top: 1.15rem;
+  }
+
+  .ranking-row:last-child td {
+    padding-bottom: 1.15rem;
+  }
+
+  .ranking-table tbody tr:last-child td {
+    border-bottom: 2px solid var(--cream-deep);
+  }
+
+  .rank-cell {
+    padding-left: 0 !important;
+  }
+
+  .rank-number {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.08rem;
+    font-family: var(--font-latin);
+    font-size: 1.45rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .rank-number__hash {
+    color: var(--paper-muted);
+    font-family: var(--font-mono);
+    font-size: 0.48rem;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .is-podium .rank-number {
+    font-size: 1.85rem;
+  }
+
+  .is-podium:nth-child(1) .rank-number {
+    color: var(--flare-text);
+  }
+
+  .is-podium:nth-child(2) .rank-number {
+    color: #527c8c;
+  }
+
+  .is-podium:nth-child(3) .rank-number {
+    color: #8a6940;
+  }
+
+  .player-cell {
+    padding-left: 0.75rem !important;
+  }
+
+  .player-name {
+    display: block;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 0.88rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .player-id {
+    display: block;
+    margin-top: 0.18rem;
+    color: #66685a;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  .player-note {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--flare-text);
+    font-size: 0.6rem;
+    line-height: 1.4;
+  }
+
+  .video-cell {
+    text-align: right;
+  }
+
+  .video-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.22rem;
+    color: #2f6478;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+    white-space: nowrap;
+  }
+
+  .video-link:hover {
+    background: var(--cream);
+    color: var(--ink);
+  }
+
+  .total-cell,
+  .score-cell {
+    text-align: center;
+  }
+
+  /* 单曲成绩在整行高度内垂直居中，不受选手备注行数影响 */
+  .ranking-row td.score-cell {
+    vertical-align: middle;
+  }
+
+  .total-score {
+    display: inline-block;
+    color: var(--ink);
+    font-family: var(--font-latin);
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--apricot);
+  }
+
+  .score-number {
+    display: block;
+    color: var(--ink);
+    font-family: var(--font-latin);
+    font-size: 0.9rem;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    line-height: 1.4;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .score-mobile-label {
+    display: none;
+  }
+
+  .time-cell {
+    text-align: right;
+  }
+
+  .time-cell time {
+    display: inline-block;
+    color: var(--paper-muted);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: -0.02em;
+    line-height: 1.5;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .status-cell {
+    text-align: right;
+  }
+
+  .rank-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.06em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .rank-status::before {
+    width: 0.38rem;
+    height: 0.38rem;
+    border-radius: 50%;
+    background: currentColor;
+    content: "";
+  }
+
+  .rank-status--advance {
+    color: #3e5b00;
+  }
+
+  .rank-status--lcq {
+    color: var(--sky-text);
+  }
+
+  .rank-status--review {
+    color: var(--flare-text);
+  }
+
+  .rank-status--out {
+    color: var(--paper-muted);
+  }
+
+  .ranking-cutline td {
+    padding: 0;
+    border-bottom: 1px solid var(--cream-deep);
+    background: var(--cream-deep);
+    color: var(--ink);
+  }
+
+  .ranking-cutline__inner {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.8rem 0.9rem;
+    font-size: 0.62rem;
+  }
+
+  .ranking-cutline .mono {
+    color: var(--flare-text);
+    font-size: 0.52rem;
+  }
+
+  .ranking-cutline__line {
+    flex: 1;
+    height: 1px;
+    background: var(--apricot);
+  }
+
+  .ranking-empty {
+    display: grid;
+    justify-items: center;
+    padding: clamp(3rem, 8vw, 6rem) 1.5rem;
+    border-top: 2px solid var(--cream-deep);
+    border-bottom: 2px solid var(--cream-deep);
+    text-align: center;
+  }
+
+  .ranking-empty__mark {
+    color: var(--flare-text);
+    font-size: 0.6rem;
+  }
+
+  .ranking-empty__title {
+    margin-top: 1.2rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+  }
+
+  .ranking-empty__text {
+    max-width: 30rem;
+    margin-top: 0.8rem;
+    color: var(--paper-muted);
+    font-size: var(--text-sm);
+  }
+
+  .ranking-empty__hint {
+    margin-top: 1.2rem;
+    color: var(--paper-muted);
+    font-size: 0.55rem;
+  }
+
+  @media (max-width: 1180px) {
+    .ranking-table,
+    .ranking-table tbody {
+      display: block;
+    }
+
+    .ranking-table thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+    }
+
+    .ranking-row {
+      display: grid;
+      grid-template-areas:
+        "rank name name status"
+        "rank total total total"
+        "rank song1 song2 song3"
+        "rank video time time";
+      grid-template-columns: 2.7rem repeat(3, minmax(0, 1fr));
+      gap: 0.55rem 0.8rem;
+      align-items: start;
+      padding: 1.25rem 0.55rem;
+      border-bottom: 1px solid var(--paper-line);
+    }
+
+    .ranking-row:first-child {
+      padding-top: 1.2rem;
+    }
+
+    .ranking-row:last-child {
+      border-bottom: 2px solid var(--cream-deep);
+    }
+
+    .ranking-row td {
+      padding: 0;
+      border: 0;
+    }
+
+    /* 卡片模式下单元格不再是表格单元格，重置首尾行的表格内边距，
+       否则第二张（末行）卡片会多出一圈空隙 */
+    .ranking-row:first-child td,
+    .ranking-row:last-child td {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    /* 桌面端用末行单元格组成表格收底边线；卡片模式下改为由行本身承担 */
+    .ranking-table tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .rank-cell {
+      grid-area: rank;
+      align-self: start;
+    }
+
+    .player-cell {
+      grid-area: name;
+      padding-left: 0 !important;
+    }
+
+    .video-cell {
+      grid-area: video;
+      align-self: center;
+      padding-top: 0.35rem !important;
+      text-align: left;
+    }
+
+    .video-cell::before,
+    .time-cell::before {
+      margin-right: 0.35rem;
+      color: var(--paper-muted);
+      font-family: var(--font-mono);
+      font-size: 0.52rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .video-cell::before {
+      content: "手元";
+    }
+
+    .time-cell::before {
+      content: "时间";
+    }
+
+    .total-cell {
+      grid-area: total;
+      padding-top: 0.2rem !important;
+      text-align: left;
+    }
+
+    .total-cell::before {
+      display: block;
+      margin-bottom: 0.1rem;
+      color: var(--paper-muted);
+      content: "总分";
+      font-family: var(--font-mono);
+      font-size: 0.52rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .score-cell {
+      padding-top: 0.35rem !important;
+      text-align: center;
+    }
+
+    .score-cell[data-song-index="1"] {
+      grid-area: song1;
+    }
+
+    .score-cell[data-song-index="2"] {
+      grid-area: song2;
+    }
+
+    .score-cell[data-song-index="3"] {
+      grid-area: song3;
+    }
+
+    .score-mobile-label {
+      display: grid;
+      justify-items: center;
+      gap: 0.08rem;
+      min-width: 0;
+      margin-bottom: 0.16rem;
+      color: var(--paper-muted);
+      font-family: var(--font-mono);
+      font-size: 0.52rem;
+      letter-spacing: 0.04em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+
+    .score-mobile-title {
+      display: block;
+      max-width: 100%;
+      overflow: hidden;
+      font-family: var(--font-sans);
+      font-size: 0.62rem;
+      letter-spacing: 0;
+      text-align: center;
+      text-overflow: ellipsis;
+      text-transform: none;
+      white-space: nowrap;
+    }
+
+    .score-number {
+      font-size: 0.82rem;
+    }
+
+    .time-cell {
+      grid-area: time;
+      justify-self: end;
+      align-self: center;
+      padding-top: 0.35rem !important;
+    }
+
+    .time-cell time {
+      font-size: 0.62rem;
+    }
+
+    .status-cell {
+      grid-area: status;
+      justify-self: end;
+    }
+
+    .rank-number,
+    .is-podium .rank-number {
+      font-size: 1.5rem;
+    }
+
+    .rank-number__hash {
+      display: none;
+    }
+
+    .ranking-cutline td {
+      display: block;
+      margin-block: 0.4rem;
+    }
+
+    .ranking-cutline__inner {
+      flex-wrap: wrap;
+      gap: 0.35rem 0.7rem;
+      padding: 0.75rem;
+    }
+
+    .ranking-cutline__line {
+      display: none;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .ranking-row {
+      grid-template-columns: 2.35rem repeat(3, minmax(0, 1fr));
+      column-gap: 0.5rem;
+    }
+
+    .score-number {
+      font-size: 0.74rem;
+    }
+
+    .video-cell::before,
+    .time-cell::before {
+      display: none;
+    }
+  }
+</style>
