@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
 import RankingTable from '../components/RankingTable.astro';
+import RankingExample from '../components/RankingExample.astro';
 import StatusBadge from '../components/StatusBadge.astro';
 import { ranking, SCORE_COUNT } from '../data/ranking';
 import { RANKING_ENDPOINT, SHOW_RANKING_BANNER } from '../config/ranking';
@@ -22,14 +23,14 @@ const bannerSongs = SHOW_RANKING_BANNER ? (Object.values(bannerModules)[0]?.defa
 
 <BaseLayout
   title="预选榜单"
-  description="合肥「第一」音游祭 Arcaea 项目预选榜单展示页。实时展示名次、选手名称与 id、三曲成绩、手元链接、收录时间与晋级状态。"
+  description="合肥「第一」音游祭 Arcaea 项目预选榜单展示页。实时展示名次、选手名称与 id、三曲成绩、手元或屏元链接、收录时间与晋级状态。"
 >
   <PageHero
     index="02"
     kicker="ONLINE QUALIFIER / RANKING"
     title="预选榜单"
     englishTitle="QUALIFIER RANKING"
-    description="线上预选阶段的有效成绩将在这里统一汇总。榜单按三曲总分与收录时间生成排名，并展示手元、审核状态与晋级结果。"
+    description="线上预选阶段的有效成绩将在这里统一汇总。榜单按三曲总分与收录时间生成排名，并展示手元或屏元、审核状态与晋级结果。"
     status={{ label: ranking.statusLabel, tone: ranking.statusTone }}
     accent="sky"
   >
@@ -112,6 +113,14 @@ const bannerSongs = SHOW_RANKING_BANNER ? (Object.values(bannerModules)[0]?.defa
           emptyText="线上预选尚未产生有效成绩。正式榜单开放后，这里会自动展示名次、选手、三曲成绩、时间与晋级状态。"
         />
       </div>
+
+      {
+        ranking.example && (
+          <div data-reveal>
+            <RankingExample example={ranking.example} songs={ranking.songs} />
+          </div>
+        )
+      }
 
       <div class="ranking-after" data-reveal>
         <div class="ranking-after__note">

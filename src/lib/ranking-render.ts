@@ -32,7 +32,7 @@ const renderScoreCell = (score: number, title: string, index: number): string =>
   </td>`;
 
 const renderEntry = (entry: RankingEntry, board: RankingBoard): string => {
-  const videoLabel = `查看 ${entry.playerName} 的手元`;
+  const videoLabel = `查看 ${entry.playerName} 的手元或屏元`;
   const scores = entry.scores
     .map((score, index) => renderScoreCell(score, board.songs[index]?.title ?? '', index))
     .join('');
@@ -54,7 +54,7 @@ const renderEntry = (entry: RankingEntry, board: RankingBoard): string => {
         <span class="total-score">${formatScore(entry.total)}</span>
       </td>
       ${scores}
-      <td data-label="手元" class="video-cell">
+      <td data-label="手元或屏元" class="video-cell">
         <a
           class="video-link"
           href="${escapeHtml(entry.videoUrl)}"
@@ -133,7 +133,7 @@ export const renderRankingTable = (board: RankingBoard, emptyText: string): stri
   return `
     <table class="ranking-table">
       <caption class="sr-only">
-        预选榜单，包含名次、选手名称与 id、手元链接、总分、三曲成绩、收录时间与晋级状态。
+        预选榜单，包含名次、选手名称与 id、手元或屏元链接、总分、三曲成绩、收录时间与晋级状态。
       </caption>
       <thead>
         <tr>
@@ -141,7 +141,7 @@ export const renderRankingTable = (board: RankingBoard, emptyText: string): stri
           <th scope="col" class="col-player">名称 / id</th>
           <th scope="col" class="col-total">总分</th>
           ${scoreHeaders}
-          <th scope="col" class="col-video">手元</th>
+          <th scope="col" class="col-video">手元或屏元</th>
           <th scope="col" class="col-time">时间</th>
           <th scope="col" class="col-status">状态</th>
         </tr>

@@ -21,6 +21,17 @@
       "title": "chronologia [ETR]"
     }
   ],
+  "example": {
+    "playerName": "霜夏",
+    "playerId": "Lgd127Shimoka",
+    "recordedAt": "2026-11-05T19:51:36+08:00",
+    "videoUrl": "https://www.bilibili.com/video/BV1qE4566E2E",
+    "scores": [
+      10001425,
+      10001618,
+      10001450
+    ]
+  },
   "entries": [
     {
       "playerId": "Ryd165qsylQAQ",

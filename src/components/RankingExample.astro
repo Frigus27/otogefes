@@ -1,0 +1,199 @@
+---
+import { formatRankingTime, formatScore } from '../lib/format';
+import { statusLabel, type RankingExampleEntry, type RankingSong } from '../lib/ranking';
+
+interface Props {
+  example: RankingExampleEntry;
+  songs: RankingSong[];
+}
+
+const { example, songs } = Astro.props;
+---
+
+<aside class="ranking-example" aria-labelledby="ranking-example-title">
+  <header class="ranking-example__head">
+    <div>
+      <p class="mono">SAMPLE ENTRY / 示例数据</p>
+      <h3 id="ranking-example-title">示例成绩条目</h3>
+    </div>
+    <span class="rank-status rank-status--example">{statusLabel.example}</span>
+  </header>
+
+  <dl class="ranking-example__grid">
+    <div class="ranking-example__player">
+      <dt class="mono">PLAYER / 选手</dt>
+      <dd class="ranking-example__name">{example.playerName}</dd>
+      <dd class="ranking-example__id mono">{example.playerId}</dd>
+    </div>
+    <div>
+      <dt class="mono">TOTAL / 总分</dt>
+      <dd class="ranking-example__total">{formatScore(example.total)}</dd>
+    </div>
+    {songs.map((song, index) => (
+      <div>
+        <dt class="mono">曲 {index + 1} / {song.title}</dt>
+        <dd class="ranking-example__score">{formatScore(example.scores[index])}</dd>
+      </div>
+    ))}
+    <div>
+      <dt class="mono">VIDEO / 手元或屏元</dt>
+      <dd>
+        <a
+          class="ranking-example__link"
+          href={example.videoUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          视频 <span aria-hidden="true">↗</span>
+        </a>
+      </dd>
+    </div>
+    <div>
+      <dt class="mono">TIME / 时间</dt>
+      <dd>
+        <time class="ranking-example__time" datetime={example.recordedAt}>
+          {formatRankingTime(example.recordedAt)}
+        </time>
+      </dd>
+    </div>
+  </dl>
+
+  <p class="ranking-example__note">
+    此条为展示用示例，不计入正式排名；正式成绩以「有效成绩排行」为准。
+  </p>
+</aside>
+
+<style>
+  .ranking-example {
+    margin-top: 1.5rem;
+    padding: clamp(1rem, 2vw, 1.4rem) clamp(1rem, 2.4vw, 1.75rem);
+    border: 1px solid var(--paper-line);
+    border-left: 4px solid var(--violet);
+    background: var(--cream-soft);
+  }
+
+  .ranking-example__head {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid var(--cream-deep);
+  }
+
+  .ranking-example__head .mono {
+    color: var(--violet-text);
+    font-size: 0.5rem;
+  }
+
+  .ranking-example__head h3 {
+    margin-top: 0.3rem;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+
+  .ranking-example__grid {
+    display: grid;
+    grid-template-columns:
+      minmax(9rem, 1.25fr) minmax(6.5rem, 0.8fr)
+      repeat(3, minmax(6rem, 0.85fr)) minmax(4.5rem, 0.55fr) minmax(6.5rem, 0.8fr);
+    gap: 0.9rem 1.2rem;
+    align-items: start;
+    padding-top: 1rem;
+  }
+
+  .ranking-example__grid dt {
+    color: var(--paper-muted);
+    font-size: 0.46rem;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+  }
+
+  .ranking-example__grid dd {
+    margin-top: 0.28rem;
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    line-height: 1.5;
+  }
+
+  .ranking-example__name {
+    font-family: var(--font-sans) !important;
+    font-size: 0.9rem !important;
+    font-weight: 650;
+  }
+
+  .ranking-example__id {
+    color: var(--paper-muted) !important;
+    font-size: 0.6rem !important;
+  }
+
+  .ranking-example__total {
+    display: inline-block;
+    font-family: var(--font-latin) !important;
+    font-size: 1.25rem !important;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    border-bottom: 2px solid var(--apricot);
+  }
+
+  .ranking-example__score {
+    font-family: var(--font-latin) !important;
+    font-size: 0.9rem !important;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ranking-example__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    color: var(--sky-text);
+    font-size: 0.64rem;
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+  }
+
+  .ranking-example__link:hover {
+    background: var(--cream);
+    color: var(--ink);
+  }
+
+  .ranking-example__time {
+    font-size: 0.64rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .ranking-example__note {
+    margin-top: 1rem;
+    padding-top: 0.8rem;
+    border-top: 1px dashed var(--cream-deep);
+    color: var(--paper-muted);
+    font-size: 0.62rem;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 1180px) {
+    .ranking-example__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .ranking-example__player {
+      grid-column: span 2;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .ranking-example__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ranking-example__player {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

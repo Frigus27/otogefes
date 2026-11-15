@@ -5,7 +5,7 @@ export const RANKING_MAX_SCORE = 10_002_228;
 /** 直通线之后进入 LCQ 的名额数：第 8—15 名，依据章程。 */
 export const RANKING_LCQ_SLOTS = 8;
 
-export type RankingEntryStatus = 'advance' | 'lcq' | 'review' | 'out';
+export type RankingEntryStatus = 'advance' | 'lcq' | 'review' | 'out' | 'example';
 
 export interface RankingSong {
   id: string;
@@ -29,6 +29,13 @@ export interface RankingEntry extends RankingSourceEntry {
   status: RankingEntryStatus;
 }
 
+/** 榜单页的示例条目：与正式排名完全分离，不参与排序与晋级计算。 */
+export interface RankingExampleEntry extends RankingSourceEntry {
+  scores: number[];
+  total: number;
+  status: 'example';
+}
+
 export interface RankingBoard {
   schemaVersion: 1;
   project: string;
@@ -42,6 +49,7 @@ export interface RankingBoard {
   updatedAt: string;
   songs: RankingSong[];
   entries: RankingEntry[];
+  example?: RankingExampleEntry;
 }
 
 const STATUS_TONES: StatusTone[] = ['pending', 'active', 'upcoming', 'done'];
@@ -66,6 +74,59 @@ const isHttpUrl = (value: unknown): value is string => {
 
 const fail = (messages: string[]): never => {
   throw new Error(`[ranking] 数据校验失败：\n- ${messages.join('\n- ')}`);
+};
+
+const parseExampleEntry = (
+  value: unknown,
+  errors: string[],
+): RankingExampleEntry | undefined => {
+  if (value === undefined) return undefined;
+
+  const label = 'example（示例数据）';
+
+  if (!isRecord(value)) {
+    errors.push(`${label} 必须是对象。`);
+    return undefined;
+  }
+
+  if (!isNonEmptyString(value.playerId)) errors.push(`${label} 缺少 playerId。`);
+  if (!isNonEmptyString(value.playerName)) errors.push(`${label} 缺少 playerName。`);
+  if (!isValidDate(value.recordedAt)) errors.push(`${label} 的 recordedAt 不是有效时间。`);
+  if (!isHttpUrl(value.videoUrl)) errors.push(`${label} 的 videoUrl 必须是 http/https 链接。`);
+
+  if (!Array.isArray(value.scores) || value.scores.length !== RANKING_SCORE_COUNT) {
+    errors.push(`${label} 必须包含 ${RANKING_SCORE_COUNT} 个曲目成绩。`);
+    return undefined;
+  }
+
+  const scores = value.scores.map((score) => {
+    if (!Number.isInteger(score) || (score as number) < 0 || (score as number) > RANKING_MAX_SCORE) {
+      errors.push(
+        `${label} 的成绩必须是 0 到 ${RANKING_MAX_SCORE.toLocaleString('en-US')} 之间的整数。`,
+      );
+    }
+    return Number(score);
+  });
+
+  if (
+    !isNonEmptyString(value.playerId) ||
+    !isNonEmptyString(value.playerName) ||
+    !isValidDate(value.recordedAt) ||
+    !isHttpUrl(value.videoUrl) ||
+    scores.some((score) => !Number.isFinite(score))
+  ) {
+    return undefined;
+  }
+
+  return {
+    playerId: value.playerId,
+    playerName: value.playerName,
+    recordedAt: value.recordedAt,
+    videoUrl: value.videoUrl,
+    scores,
+    total: scores.reduce((sum, score) => sum + score, 0),
+    status: 'example',
+  };
 };
 
 /**
@@ -192,6 +253,9 @@ export const normalizeRankingData = (raw: unknown): RankingBoard => {
 
   if (errors.length) fail(errors);
 
+  const example = parseExampleEntry(data.example, errors);
+  if (errors.length) fail(errors);
+
   const cutoff = data.cutoff as number;
   const lcqCutoff = cutoff + RANKING_LCQ_SLOTS;
 
@@ -229,6 +293,7 @@ export const normalizeRankingData = (raw: unknown): RankingBoard => {
     updatedAt: data.updatedAt as string,
     songs,
     entries: sorted,
+    example,
   };
 };
 
@@ -237,6 +302,7 @@ export const statusLabel: Record<RankingEntryStatus, string> = {
   lcq: 'LCQ 资格区',
   review: '审核中',
   out: '未晋级',
+  example: '示例',
 };
 
 export const statusTone: Record<RankingEntryStatus, string> = {
@@ -244,6 +310,7 @@ export const statusTone: Record<RankingEntryStatus, string> = {
   lcq: 'lcq',
   review: 'review',
   out: 'out',
+  example: 'example',
 };
 
 

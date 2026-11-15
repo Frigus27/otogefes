@@ -58,7 +58,7 @@ python3 -m http.server 4410 --directory preview/mobile
 | 路由 | 说明 |
 | --- | --- |
 | `/` | 首页：主视觉、项目、阶段、榜单/规则入口、赛程与公告精选 |
-| `/ranking` | 预选榜单：实时 JSON 成绩、总分/时间排序、手元、三曲成绩与移动端卡片布局 |
+| `/ranking` | 预选榜单：实时 JSON 成绩、总分/时间排序、手元或屏元、三曲成绩与移动端卡片布局 |
 | `/rules` | 赛事规则：Markdown 正文、目录、版本与更新时间 |
 | `/schedule` | 现场赛程：场地占位、流程结构、晋级/对阵/结果扩展位 |
 | `/news` | 公告列表：置顶公告、分类、日期与摘要 |
@@ -87,7 +87,7 @@ python3 -m http.server 4410 --directory preview/mobile
     │   ├── rules/main.md           # 规则正文
     │   └── news/*.md               # 公告正文
     ├── data/
-    │   ├── ranking.json            # 榜单原始数据（成绩、时间、曲目、手元）
+    │   ├── ranking.json            # 榜单原始数据（成绩、时间、曲目、手元或屏元）
     │   ├── ranking.ts              # 构建时读取并规范化 ranking.json
     │   └── schedule.ts             # 赛程结构化占位数据
     ├── lib/
@@ -185,6 +185,13 @@ author: 赛事筹备组
     { "id": "arc-02", "title": "曲名 B" },
     { "id": "arc-03", "title": "曲名 C" }
   ],
+  "example": {
+    "playerId": "HF-0000",
+    "playerName": "示例选手",
+    "recordedAt": "2026-10-19T03:30:05+08:00",
+    "videoUrl": "https://example.com/video",
+    "scores": [10000000, 10000000, 10000000]
+  },
   "entries": [
     {
       "playerId": "HF-0001",
@@ -208,7 +215,9 @@ author: 赛事筹备组
 5. `rank`、`total`、`status` 全部由程序派生，不需要写进 JSON；
 6. `review: true` 显示「审核中」；否则按 `cutoff` 派生「晋级区」，随后 8 名（第 8—15 名）派生「LCQ 资格区」，其余为「未晋级」。
 
-构建和浏览器共享同一套校验：未知 schema、重复 playerId、缺失手元、成绩数量不为 3、时间格式错误等都会直接报错。`entries` 为空时显示空状态。
+可选的 `example` 对象用于表格下方的示例条目，字段校验与 `entries` 相同，但**不参与排序与晋级计算**，其状态固定显示为「示例」。删除该字段即可完全移除示例。
+
+构建和浏览器共享同一套校验：未知 schema、重复 playerId、缺失手元或屏元、成绩数量不为 3、时间格式错误等都会直接报错。`entries` 为空时显示空状态。
 
 榜单页的曲绘横幅由 `PUBLIC_RANKING_BANNER` 控制，默认关闭；确认官方素材授权后，构建环境设为 `PUBLIC_RANKING_BANNER=true` 才会输出横幅。
 

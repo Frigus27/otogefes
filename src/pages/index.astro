@@ -310,9 +310,9 @@ const tickerItems = [
                         href={entry.videoUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        aria-label={`查看 ${entry.playerName} 的手元`}
+                        aria-label={`查看 ${entry.playerName} 的手元或屏元`}
                       >
-                        手元 ↗
+                        手元或屏元 ↗
                       </a>
                     )}
                   </span>
@@ -1845,7 +1845,7 @@ const tickerItems = [
           if (video) {
             video.href = entry.videoUrl;
             video.hidden = !entry.videoUrl;
-            video.setAttribute('aria-label', `查看 ${entry.playerName} 的手元`);
+            video.setAttribute('aria-label', `查看 ${entry.playerName} 的手元或屏元`);
           }
         });
 
