@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M60 0H0V60" fill="none" stroke="#f3f0e6" stroke-opacity=".06" stroke-width="1"/>
+    </pattern>
+    <clipPath id="ringClip">
+      <circle cx="930" cy="310" r="220"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="630" fill="#171811"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <rect x="64" y="52" width="74" height="5" fill="#ff5f3b"/>
+
+  <circle cx="930" cy="310" r="242" fill="none" stroke="#f3f0e6" stroke-opacity=".22"/>
+  <circle cx="930" cy="310" r="168" fill="none" stroke="#f3f0e6" stroke-opacity=".35" stroke-dasharray="4 9"/>
+  <circle cx="930" cy="310" r="96" fill="none" stroke="#f3f0e6" stroke-opacity=".5"/>
+  <g clip-path="url(#ringClip)" transform="rotate(-29 930 310)">
+    <rect x="650" y="236" width="560" height="18" fill="#f3f0e6" opacity=".9"/>
+    <rect x="650" y="278" width="560" height="42" fill="#dcff4f"/>
+    <rect x="650" y="334" width="560" height="9" fill="#f3f0e6" opacity=".7"/>
+    <rect x="650" y="358" width="560" height="24" fill="#ff5f3b"/>
+    <rect x="650" y="398" width="560" height="11" fill="#9dd9ee"/>
+  </g>
+  <circle cx="930" cy="310" r="15" fill="none" stroke="#f3f0e6"/>
+  <circle cx="930" cy="310" r="5" fill="#dcff4f"/>
+  <path d="M930 44v72M930 504v72M664 310h72M1124 310h72" stroke="#f3f0e6" stroke-opacity=".45"/>
+
+  <text x="66" y="124" fill="#dcff4f" font-family="IBM Plex Mono, monospace" font-size="19" letter-spacing="3">HEFEI OTOGE FES / VOL. 01</text>
+  <text x="64" y="270" fill="#f3f0e6" font-family="PingFang SC, Songti SC, Noto Sans CJK SC, sans-serif" font-size="86" font-weight="900" letter-spacing="-5">合肥<tspan fill="#dcff4f">「第一」</tspan>音游祭</text>
+  <text x="68" y="326" fill="#a7a998" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" font-size="25">让节拍在合肥相遇。</text>
+
+  <rect x="66" y="390" width="422" height="1" fill="#3a3b30"/>
+  <text x="66" y="436" fill="#a7a998" font-family="IBM Plex Mono, monospace" font-size="15" letter-spacing="2">CURRENT PROJECT</text>
+  <text x="66" y="482" fill="#f3f0e6" font-family="Archivo, Arial Black, sans-serif" font-size="42" font-weight="900" letter-spacing="1">ARCAEA</text>
+  <text x="66" y="528" fill="#a7a998" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" font-size="18">线上预选 + 现场比赛 / 日期与场馆待公布</text>
+
+  <text x="1136" y="566" fill="#a7a998" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="14" letter-spacing="2">HF-OTG-01 / VOL. 01</text>
+  <rect x="0" y="614" width="1200" height="16" fill="#dcff4f"/>
+</svg>

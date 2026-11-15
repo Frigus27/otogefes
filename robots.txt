@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+# 正式域名确定后可在此添加 Sitemap 地址。

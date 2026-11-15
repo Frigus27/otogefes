@@ -1,0 +1,32 @@
+{
+  "name": "合肥「第一」音游祭",
+  "short_name": "合肥音游祭",
+  "description": "合肥「第一」音游祭赛事官网：Arcaea 线上预选、赛事规则、现场赛程与公告。",
+  "lang": "zh-CN",
+  "start_url": "/otogefes/",
+  "display": "standalone",
+  "background_color": "#171811",
+  "theme_color": "#171811",
+  "icons": [
+    {
+      "src": "/otogefes/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/otogefes/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/otogefes/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/otogefes/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
