@@ -49,12 +49,38 @@
     {
       "playerId": "Eyvind000",
       "playerName": "BestNiiik",
-      "recordedAt": "2026-11-15T03:16:23+08:00",
+      "recordedAt": "2026-11-15T15:16:23+08:00",
       "videoUrl": "https://bilibili.com/BV1HNsn6oEy5",
       "scores": [
         9997931,
         9995484,
         9998026
+      ],
+      "review": false,
+      "note": ""
+    },
+    {
+      "playerId": "KaliUser",
+      "playerName": "ReAmplus",
+      "recordedAt": "2026-11-16T22:20:34+08:00",
+      "videoUrl": "https://bilibili.com/BV19dsN6iExQ",
+      "scores": [
+        9931489,
+        9802440,
+        9957074
+      ],
+      "review": false,
+      "note": ""
+    },
+    {
+      "playerId": "eertssalc",
+      "playerName": "eertssalc",
+      "recordedAt": "2026-11-20T23:45:32+08:00",
+      "videoUrl": "https://bilibili.com/BV1DTyszSE6s",
+      "scores": [
+        10001420,
+       9992407,
+       9994626
       ],
       "review": false,
       "note": ""

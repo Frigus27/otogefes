@@ -1,17 +1,14 @@
-# build output
+# 构建产物
 dist/
 .astro/
 
-# dependencies
+# 依赖
 node_modules/
 
-# logs
-npm-debug.log*
-pnpm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# 日志
+*.log
 
-# environment
+# 本地环境变量
 .env
 .env.*
 !.env.example
@@ -22,7 +19,18 @@ src/assets/banners/banner-ranking-songs.png
 # 本地误生成的临时截图
 /none
 
-# editor / OS
+# 编辑器 / 系统
 .DS_Store
+._*
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+Thumbs.db
 .idea/
 .vscode/
+
+# 工具缓存
+.cache/
+coverage/
+*.tsbuildinfo
